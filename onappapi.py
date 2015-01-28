@@ -20,13 +20,13 @@ class OnApp(object):
     def get_data(self, url):
         data = self.get_cache(url)
         if data:
-            return data
+            return (True, data)
         else:
             data = self.exec_url(url)
-            data = self.is_valid_out(data)
-            if data:
+            (status, data) = self.is_valid_out(data)
+            if status:
                 self.write_cache(url, data)
-                return data
+                return (status, data)
         return False
 
     def write_cache(self, url, data):
@@ -62,12 +62,12 @@ class OnApp(object):
         return { 'status' : status, 'body' : body }
 
     def is_valid_out(self, output):
-        if output['status'] == 200: return output['body']
-        else: return False
+        if int(output['status']) in [ 200, 201 ]: return (True, output['body'])
+        else: return (False, output['body']['errors'])
 
     def vm_list(self, sortby = 'Hostname'):
-        data = self.get_data('virtual_machines.json')
-        if data:
+        (status, data) = self.get_data('virtual_machines.json')
+        if status:
             pt = PrettyTable(['Hostname', 'VMID', 'CPU', 'RAM', 'Disk', 'Powered on'])
             pt.align['Hostname'] = 'l'
             for virtual in data:
@@ -77,8 +77,8 @@ class OnApp(object):
             print pt.get_string(sortby=sortby)
 
     def vm_info(self, vm_id):
-        data = self.get_data('virtual_machines/%s.json' % vm_id)
-        if data:
+        (status, data) = self.get_data('virtual_machines/%s.json' % vm_id)
+        if status:
             vm = VM(data)
             print vars(vm)
 
@@ -86,15 +86,28 @@ class OnApp(object):
         if convert not in [ 0, 1]: return False
         if destroy not in [ 0, 1]: return False
         data = self.exec_url('virtual_machines/%s.json?convert_last_backup=%s&destroy_all_backups=%s' % ( vm_id, convert, destroy ))
+        (status, data) = self.is_valid_out(data)
+        print data
 
-        if not self.is_valid_out(data):
-            print data['body']
+    def vm_start(self, vm_id):
+        data = self.exec_url('virtual_machines/%s/startup.json' % vm_id, 'POST')
+        (status, data) = self.is_valid_out(data)
+        print data
+        
+    def vm_shutdown(self, vm_id):
+        data = self.exec_url('virtual_machines/%s/shutdown.json' % vm_id, 'POST')
+        (status, data) = self.is_valid_out(data)
+        print data
+
+    def vm_stop(self, vm_id):
+        data = self.exec_url('virtual_machines/%s/stop.json' % vm_id, 'POST')
+        (status, data) = self.is_valid_out(data)
+        print data
 
     def template_list(self):
-        data = self.exec_url('templates/all.json')
-        data = self.is_valid_out(data)
+        (status, data) = self.get_data('templates/all.json')
 
-        if data:
+        if status:
             pt = PrettyTable(['Label', 'Version', 'OS', 'Virtualitzation'])
             pt.align['Label'] = 'l'
             for tdata in data:

@@ -40,6 +40,19 @@ if resource == 'vm':
         if len(sys.argv) >= 4: vm_id = sys.argv[3]
         else: usage()
         api.vm_info(vm_id)
+    elif action == 'start':
+        if len(sys.argv) >= 4: vm_id = sys.argv[3]
+        else: usage()
+        api.vm_start(vm_id)
+    elif action == 'stop':
+        if len(sys.argv) >= 4: vm_id = sys.argv[3]
+        else: usage()
+        api.vm_stop(vm_id)
+    elif action == 'shutdown':
+        if len(sys.argv) >= 4: vm_id = sys.argv[3]
+        else: usage()
+        api.vm_shutdown(vm_id)
+
 elif resource == 'template':
     if action is None or action == 'list':
         api.template_list()
