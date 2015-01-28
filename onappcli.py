@@ -1,7 +1,11 @@
 #!/usr/bin/python
 from ConfigParser import RawConfigParser
 from onappapi import OnApp
-import os
+import os, sys
+
+def usage():
+    print '%s resource [action]' % sys.argv[0]
+    sys.exit(0)
 
 conf = os.path.join(os.path.expanduser("~"), '.pyonapp.conf')
 config = RawConfigParser()
@@ -22,4 +26,20 @@ url = config.get('onapp', 'url')
 
 api = OnApp(user, password, url)
 
-api.vm_list()
+resource = None
+action = None
+
+if len(sys.argv) < 2: usage()
+if len(sys.argv) >= 2: resource = sys.argv[1]
+if len(sys.argv) >= 3: action = sys.argv[2]
+
+if resource == 'vm':
+    if action is None or action == 'list':
+        api.vm_list()
+    elif action == 'info':
+        if len(sys.argv) >= 4: vm_id = sys.argv[3]
+        else: usage()
+        api.vm_info(vm_id)
+elif resource == 'template':
+    if action is None or action == 'list':
+        api.template_list()
