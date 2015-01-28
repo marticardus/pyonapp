@@ -5,6 +5,9 @@ import os, sys
 
 def usage():
     print '%s resource [action]' % sys.argv[0]
+    print 'Examples:'
+    print '\t%s vm stop 45' % os.path.basename(sys.argv[0])
+    print '\t%s vm start 45' % os.path.basename(sys.argv[0])
     sys.exit(0)
 
 conf = os.path.join(os.path.expanduser("~"), '.pyonapp.conf')
