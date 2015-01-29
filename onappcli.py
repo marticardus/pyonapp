@@ -2,8 +2,12 @@
 from ConfigParser import RawConfigParser
 from onappapi import OnApp
 import os, sys
-args = sys.argv
-cmd = os.path.basename(args.pop(0))
+
+def get_arg(resource = None):
+    if len(sys.argv) > 0: return sys.argv.pop(0)
+    else: usage(resource)
+
+cmd = get_arg()
 
 def usage(resource = None):
     if resource:
@@ -41,31 +45,30 @@ url = config.get('onapp', 'url')
 
 api = OnApp(user, password, url)
 
-resource = None
-action = None
-
-if len(args) > 0: resource = args.pop(0)
-if len(args) > 0: action = args.pop(0)
+resource = get_arg()
+if resource: action = get_arg(resource)
 
 if resource == 'vm':
     if  action == 'list':
         api.vm_list()
     elif action == 'info':
-        if len(args) > 0: vm_id = args.pop(0)
-        else: usage()
+        vm_id = get_arg(resource)
         api.vm_info(vm_id)
+    elif action == 'browser':
+        vm_id = get_arg(resource)
+        api.vm_browser(vm_id)
     elif action == 'start':
-        if len(args) > 0: vm_id = args.pop(0)
-        else: usage()
+        vm_id = get_arg(resource)
         api.vm_start(vm_id)
     elif action == 'stop':
-        if len(args) > 0: vm_id = args.pop(0)
-        else: usage()
+        vm_id = get_arg(resource)
         api.vm_stop(vm_id)
     elif action == 'shutdown':
-        if len(args) > 0: vm_id = args.pop(0)
-        else: usage()
+        vm_id = get_arg(resource)
         api.vm_shutdown(vm_id)
+    elif action == 'delete':
+        vm_id = get_arg(resource)
+        api.vm_delete(vm_id)
     else: usage('vm')
 
 elif resource == 'template':

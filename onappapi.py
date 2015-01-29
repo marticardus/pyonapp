@@ -65,16 +65,17 @@ class OnApp(object):
 
     def is_valid_out(self, output):
         if int(output['status']) in [ 200, 201 ]: return (True, output['body'])
+        elif int(output['status']) in [ 404 ]: return (True, output['body']['errors'])
         else: return (False, output['body']['errors'])
 
     def vm_list(self, sortby = 'Hostname'):
         (status, data) = self.get_data('virtual_machines.json')
         if status:
-            pt = PrettyTable(['Hostname', 'VMID', 'CPU', 'RAM', 'Disk', 'Powered on'])
+            pt = PrettyTable(['Hostname', 'VMID', 'Identifier', 'CPU', 'RAM', 'Disk', 'Power'])
             pt.align['Hostname'] = 'l'
             for virtual in data:
                 vm = VM(virtual)
-                pt.add_row([vm.hostname, vm.id, vm.cpus, vm.memory, vm.total_disk_size, vm.booted])
+                pt.add_row([vm.hostname, vm.id, vm.identifier, vm.cpus, vm.memory, vm.total_disk_size, 'On' if vm.booted else 'Off' ])
 
             print pt.get_string(sortby=sortby)
 
@@ -83,13 +84,22 @@ class OnApp(object):
         if status:
             vm = VM(data)
             print vars(vm)
+            return vm
+
+    def vm_browser(self, vm_id):
+        vm = self.vm_info(vm_id)
+        os.system('x-www-browser http://%s/virtual_machines/%s' % (self.url, vm.identifier))
 
     def vm_delete(self, vm_id, convert = 0, destroy = 0):
         if convert not in [ 0, 1]: return False
         if destroy not in [ 0, 1]: return False
         data = self.exec_url('virtual_machines/%s.json?convert_last_backup=%s&destroy_all_backups=%s' % ( vm_id, convert, destroy ))
         (status, data) = self.is_valid_out(data)
-        print data
+        if isinstance(data, list):
+            for d in data:
+                print d
+        else:
+            print data
 
     def vm_start(self, vm_id):
         data = self.exec_url('virtual_machines/%s/startup.json' % vm_id, 'POST')
