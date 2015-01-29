@@ -1,7 +1,6 @@
 import json
 from prettytable import PrettyTable
-import os
-import pycurl
+import os, shutil, pycurl
 from StringIO import StringIO
 from vm import VM
 from template import Template
@@ -16,6 +15,9 @@ class OnApp(object):
         self.username = username
         self.password = password
         self.url = url
+
+    def clear_cache(self):
+        shutil.rmtree(self.tmpdir)
 
     def get_data(self, url):
         data = self.get_cache(url)

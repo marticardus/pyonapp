@@ -2,9 +2,10 @@
 from ConfigParser import RawConfigParser
 from onappapi import OnApp
 import os, sys
+args = sys.argv
+cmd = os.path.basename(args.pop(0))
 
 def usage(resource = None):
-    cmd = os.path.basename(sys.argv[0])
     if resource:
         if resource == 'vm':
             print '%s vm action' % cmd
@@ -15,9 +16,11 @@ def usage(resource = None):
         elif resource == 'template':
             print '%s template action' % cmd
             print 'Available actions: list'
+        elif resource == 'cache':
+            print '%s cache clear' % cmd
     else:
         print '%s resource action' % cmd
-        print 'Available resources: vm, template'
+        print 'Available resources: vm, template, cache'
 
     sys.exit(0)
 
@@ -29,10 +32,8 @@ if not os.path.exists(conf):
     config.set('onapp', 'user', raw_input('Username: '))
     config.set('onapp', 'password', raw_input('Passowrd: '))
     config.set('onapp', 'url', raw_input('Hostname: '))
-    with open(conf, 'wb') as openconf:
-        config.write(openconf)
-else:
-    config.read(conf)
+    with open(conf, 'wb') as openconf: config.write(openconf)
+else: config.read(conf)
 
 user = config.get('onapp', 'user')
 password = config.get('onapp', 'password')
@@ -43,34 +44,36 @@ api = OnApp(user, password, url)
 resource = None
 action = None
 
-if len(sys.argv) < 2: usage()
-if len(sys.argv) >= 2: resource = sys.argv[1]
-if len(sys.argv) >= 3: action = sys.argv[2]
+if len(args) > 0: resource = args.pop(0)
+if len(args) > 0: action = args.pop(0)
 
 if resource == 'vm':
     if  action == 'list':
         api.vm_list()
     elif action == 'info':
-        if len(sys.argv) >= 4: vm_id = sys.argv[3]
+        if len(args) > 0: vm_id = args.pop(0)
         else: usage()
         api.vm_info(vm_id)
     elif action == 'start':
-        if len(sys.argv) >= 4: vm_id = sys.argv[3]
+        if len(args) > 0: vm_id = args.pop(0)
         else: usage()
         api.vm_start(vm_id)
     elif action == 'stop':
-        if len(sys.argv) >= 4: vm_id = sys.argv[3]
+        if len(args) > 0: vm_id = args.pop(0)
         else: usage()
         api.vm_stop(vm_id)
     elif action == 'shutdown':
-        if len(sys.argv) >= 4: vm_id = sys.argv[3]
+        if len(args) > 0: vm_id = args.pop(0)
         else: usage()
         api.vm_shutdown(vm_id)
-    else:
-        usage('vm')
+    else: usage('vm')
 
 elif resource == 'template':
     if action == 'list':
         api.template_list()
-    else:
-        usage('template')
+    else: usage('template')
+elif resource == 'cache':
+    if action == 'clear':
+        api.clear_cache()
+    else: usage('cache')
+else: usage()
