@@ -7,7 +7,7 @@ def get_arg(resource = None):
     if len(sys.argv) > 0: return sys.argv.pop(0)
     else: usage(resource)
 
-cmd = get_arg()
+cmd = os.path.basename(get_arg())
 
 def usage(resource = None):
     if resource:
@@ -22,6 +22,12 @@ def usage(resource = None):
             print 'Available actions: list, listall, listsystem, listown, listinactive, listuser, listuserd [user_id]'
         elif resource == 'cache':
             print '%s cache clear' % cmd
+        elif resource == 'ds':
+            print '%s ds action' % cmd
+            print 'Available actions: list'
+        elif resource == 'dszone':
+            print '%s dszone action' % cmd
+            print 'Available actions: list'
     else:
         print '%s resource action' % cmd
         print 'Available resources: vm, template, cache'
