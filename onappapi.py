@@ -1,7 +1,7 @@
-import json
+import json, time
 from prettytable import PrettyTable
 import os, shutil, pycurl
-from StringIO import StringIO
+from StringIO import StringIO 
 
 # Objects
 from vm import VM
@@ -43,6 +43,10 @@ class OnApp(object):
         fd.close()
 
     def get_cache(self, url):
+        if os.path.isfile(os.path.join(self.tmpdir, url)):
+            ago=time.time()-300
+            if os.path.getmtime(os.path.join(self.tmpdir, url))<ago:
+                return False
         try:
             fd = open(os.path.join(self.tmpdir, url), 'r')
         except:
