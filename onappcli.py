@@ -3,11 +3,22 @@ from ConfigParser import RawConfigParser
 from onappapi import OnApp
 import os, sys
 
-def usage():
-    print '%s resource [action]' % sys.argv[0]
-    print 'Examples:'
-    print '\t%s vm stop 45' % os.path.basename(sys.argv[0])
-    print '\t%s vm start 45' % os.path.basename(sys.argv[0])
+def usage(resource = None):
+    cmd = os.path.basename(sys.argv[0])
+    if resource:
+        if resource == 'vm':
+            print '%s vm action' % cmd
+            print 'Available actions: list, info, start, stop, shutdown, delete'
+            print 'Example:'
+            print '\t%s shutdown 45' % cmd
+            print '\t%s start 45' % cmd
+        elif resource == 'template':
+            print '%s template action' % cmd
+            print 'Available actions: list'
+    else:
+        print '%s resource action' % cmd
+        print 'Available resources: vm, template'
+
     sys.exit(0)
 
 conf = os.path.join(os.path.expanduser("~"), '.pyonapp.conf')
@@ -37,7 +48,7 @@ if len(sys.argv) >= 2: resource = sys.argv[1]
 if len(sys.argv) >= 3: action = sys.argv[2]
 
 if resource == 'vm':
-    if action is None or action == 'list':
+    if  action == 'list':
         api.vm_list()
     elif action == 'info':
         if len(sys.argv) >= 4: vm_id = sys.argv[3]
@@ -55,7 +66,11 @@ if resource == 'vm':
         if len(sys.argv) >= 4: vm_id = sys.argv[3]
         else: usage()
         api.vm_shutdown(vm_id)
+    else:
+        usage('vm')
 
 elif resource == 'template':
-    if action is None or action == 'list':
+    if action == 'list':
         api.template_list()
+    else:
+        usage('template')
