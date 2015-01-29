@@ -47,13 +47,17 @@ class OnApp(object):
         if data: return json.loads(data)
         else: return False
 
-    def exec_url(self, url, method = 'GET'):
+    def exec_url(self, url, method = 'GET', data = None):
         buffer = StringIO()
         c = pycurl.Curl()
         c.setopt(c.URL, '%s/%s' % (self.url, url))
         c.setopt(c.WRITEDATA, buffer)
         c.setopt(c.USERPWD, '%s:%s' % (self.username, self.password))
         c.setopt(c.CUSTOMREQUEST, method)
+        c.setopt(c.HTTPHEADER, ['Accept: application/json', 'Content-type: application/json'])
+        if json:
+            print json.dumps(data)
+            c.setopt(c.POSTFIELDS, json.dumps(data))
         c.perform()
         status = c.getinfo(c.RESPONSE_CODE)
         c.close()
@@ -65,7 +69,7 @@ class OnApp(object):
 
     def is_valid_out(self, output):
         if int(output['status']) in [ 200, 201 ]: return (True, output['body'])
-        elif int(output['status']) in [ 404 ]: return (True, output['body']['errors'])
+        elif int(output['status']) in [ 404, 500 ]: return (True, output['body']['errors'])
         else: return (False, output['body']['errors'])
 
     def vm_list(self, sortby = 'Hostname'):
@@ -116,14 +120,26 @@ class OnApp(object):
         (status, data) = self.is_valid_out(data)
         print data
 
+    def vm_create(self, **kwargs):
+        args = {}
+        for (item, value) in kwargs.items():
+            args[item] = value
+        vs = { 'virtual_machine' : args }
+
+        data = self.exec_url('virtual_machines.json', 'POST', vs)
+        (status, data) = self.is_valid_out(data)
+        if isinstance(data, list):
+            for d in data: print d
+        else: print data
+
     def template_list(self):
         (status, data) = self.get_data('templates/all.json')
 
         if status:
-            pt = PrettyTable(['Label', 'Version', 'OS', 'Virtualitzation'])
+            pt = PrettyTable(['Label', 'ID', 'Version', 'OS', 'Virtualitzation'])
             pt.align['Label'] = 'l'
             for tdata in data:
                 t = Template(tdata)
-                pt.add_row([t.label, t.version, t.operating_system, t.virtualization])
+                pt.add_row([t.label, t.id, t.version, t.operating_system, t.virtualization])
 
             print pt
