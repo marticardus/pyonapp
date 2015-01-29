@@ -2,8 +2,12 @@ import json
 from prettytable import PrettyTable
 import os, shutil, pycurl
 from StringIO import StringIO
+
+# Objects
 from vm import VM
 from template import Template
+from dszone import DSZone
+from ds import DS
 
 class OnApp(object):
     username = None
@@ -130,8 +134,14 @@ class OnApp(object):
             for d in data: print d
         else: return VM(data)
 
-    def template_list(self):
-        (status, data) = self.get_data('templates/all.json')
+    def template_list(self, types = 'all', user_id = None):
+        if types in [ 'all', 'own', 'user', 'inactive' ]:
+            (status, data) = self.get_data('templates/%s.json' % types)
+        elif types == 'system':
+            (status, data) = self.get_data('templates.json')
+        elif types == 'userid':
+            if not user_id: return False
+            (status, data) = self.get_data('templates/user/%s.json' % user_id)
 
         if status:
             pt = PrettyTable(['Label', 'ID', 'Version', 'OS', 'Virtualitzation'])
@@ -141,3 +151,28 @@ class OnApp(object):
                 pt.add_row([t.label, t.id, t.version, t.operating_system, t.virtualization])
 
             print pt
+
+    def dszone_list(self):
+        (status, data) = self.get_data('settings/data_store_zones.json')
+
+        if status:
+            pt = PrettyTable(['Label', 'ID'])
+            pt.align['Label'] = 'l'
+            for tdata in data:
+                z = DSZone(tdata)
+                pt.add_row([z.label, z.id])
+
+            print pt
+
+    def ds_list(self):
+        (status, data) = self.get_data('settings/data_stores.json')
+
+        if status:
+            pt = PrettyTable(['Label', 'ID', 'identifier', 'usage', 'Enabled' ])
+            pt.align['Label'] = 'l'
+            for ds in data:
+                d = DS(ds)
+                pt.add_row([d.label, d.id, d.identifier, d.usage, d.enabled ])
+
+            print pt
+

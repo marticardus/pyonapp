@@ -19,7 +19,7 @@ def usage(resource = None):
             print '\t%s start 45' % cmd
         elif resource == 'template':
             print '%s template action' % cmd
-            print 'Available actions: list'
+            print 'Available actions: list, listall, listsystem, listown, listinactive, listuser, listuserd [user_id]'
         elif resource == 'cache':
             print '%s cache clear' % cmd
     else:
@@ -114,11 +114,25 @@ if resource == 'vm':
     else: usage('vm')
 
 elif resource == 'template':
-    if action == 'list':
-        api.template_list()
+    if action == 'list' or action == 'listall': api.template_list('all')
+    elif action == 'listsystem': api.template_list('system')
+    elif action == 'listown': api.template_list('own')
+    elif action == 'listuser': api.template_list('user')
+    elif action == 'listinactive': api.template_list('inactive')
+    elif action == 'listuserid': 
+        user = get_arg('template')
+        api.template_list('user', user)
     else: usage('template')
 elif resource == 'cache':
     if action == 'clear':
         api.clear_cache()
     else: usage('cache')
+elif resource == 'dszone':
+    if action == 'list':
+        api.dszone_list()
+    else: usage('dszone')
+elif resource == 'ds':
+    if action == 'list':
+        api.ds_list()
+    else: usage('ds')
 else: usage()
