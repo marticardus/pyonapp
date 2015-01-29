@@ -56,7 +56,6 @@ class OnApp(object):
         c.setopt(c.CUSTOMREQUEST, method)
         c.setopt(c.HTTPHEADER, ['Accept: application/json', 'Content-type: application/json'])
         if json:
-            print json.dumps(data)
             c.setopt(c.POSTFIELDS, json.dumps(data))
         c.perform()
         status = c.getinfo(c.RESPONSE_CODE)
@@ -87,7 +86,6 @@ class OnApp(object):
         (status, data) = self.get_data('virtual_machines/%s.json' % vm_id)
         if status:
             vm = VM(data)
-            print vars(vm)
             return vm
 
     def vm_browser(self, vm_id):
@@ -130,7 +128,7 @@ class OnApp(object):
         (status, data) = self.is_valid_out(data)
         if isinstance(data, list):
             for d in data: print d
-        else: print data
+        else: return VM(data)
 
     def template_list(self):
         (status, data) = self.get_data('templates/all.json')

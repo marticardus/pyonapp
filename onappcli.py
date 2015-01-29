@@ -96,7 +96,7 @@ if resource == 'vm':
         parser.add_argument('--recipe-ids', help='Recipe IDs', dest='recipe_ids', default = [], type = list)
         parser.add_argument('--custom-recipe-variables', help='Custom recipe variables', default = [], type = list)
         parser.add_argument('--template-id', help='Template ID', dest='template_id', required = True, type = int)
-        parser.add_argument('--initial-root-password', help='Root password', dest='initial_root_password', required = True, type = str)
+        parser.add_argument('--initial-root-password', help='Root password', dest='initial_root_password', required = False, type = str)
         parser.add_argument('--rate-limit', help='Rate limit', dest='rate_limit', default = 'none', type = str)
         parser.add_argument('--hypervisor-group-id', help='Hypervisor group id', dest='hypervisor_group_id', type = int)
         parser.add_argument('--hypervisor-id', help='Hypervisor', dest='hypervisor_id', required = True, type = int)
@@ -105,7 +105,12 @@ if resource == 'vm':
         parser.add_argument('--licensing-key', help='License Key', dest='licensing_key', default = '', type = str)
 
         args = vars(parser.parse_args([] if len(sys.argv) == 0 else sys.argv))
-        api.vm_create(**args)
+        vm = api.vm_create(**args)
+        if vm and vm.__class__.__name__ == 'VM':
+            print vm.id
+            print vm.label
+            print vm.hostname
+
     else: usage('vm')
 
 elif resource == 'template':
