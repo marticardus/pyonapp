@@ -71,8 +71,8 @@ class OnApp(object):
         return { 'status' : status, 'body' : body }
 
     def is_valid_out(self, output):
-        if int(output['status']) in [ 200, 201 ]: return (True, output['body'])
-        elif int(output['status']) in [ 404, 500 ]: return (True, output['body']['errors'])
+        if int(output['status']) in [ 200, 201, 204 ]: return (True, output['body'])
+        elif int(output['status']) in [ 404, 422, 500 ]: return (True, output['body']['errors'])
         else: return (False, output['body']['errors'])
 
     def vm_list(self, sortby = 'Hostname'):
@@ -99,7 +99,7 @@ class OnApp(object):
     def vm_delete(self, vm_id, convert = 0, destroy = 0):
         if convert not in [ 0, 1]: return False
         if destroy not in [ 0, 1]: return False
-        data = self.exec_url('virtual_machines/%s.json?convert_last_backup=%s&destroy_all_backups=%s' % ( vm_id, convert, destroy ))
+        data = self.exec_url('virtual_machines/%s.json?convert_last_backup=%s&destroy_all_backups=%s' % ( vm_id, convert, destroy ), 'DELETE')
         (status, data) = self.is_valid_out(data)
         if isinstance(data, list):
             for d in data:
