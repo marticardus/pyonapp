@@ -153,5 +153,6 @@ elif resource == 'usage':
     else: usage('usage')
 elif resource == 'disk':
     if action == 'list': api.disk_list()
+    elif action == 'usage': api.disk_usage(get_arg('disk'))
     else: usage('disk')
 else: usage()

@@ -4,7 +4,7 @@ import os, shutil, pycurl
 from StringIO import StringIO 
 
 # Objects
-from resources import VM, Template, DSZone, DS, Log, Usage, Disk
+from resources import VM, Template, DSZone, DS, Log, Usage, Disk, DiskUsage
 
 class OnApp(object):
     username = None
@@ -227,12 +227,32 @@ class OnApp(object):
     def disk_list(self):
         (status, data) = self.get_data('settings/disks.json')
         if status:
-            pt = PrettyTable([ 'ID', 'Label', 'Size', 'Data Store', 'VS', 'FS', 'Type', 'Built', 'Auto-Backup' ])
+            pt = PrettyTable([ 'ID', 'Label', 'Size', 'Data Store', 'VS', 'FS', 'Type', 'Mounted', 'Built', 'Auto-Backup' ])
             for da in data:
                 d = Disk(da)
-                if d.primary: disktype = 'Primary'
-                elif d.is_swap: disktype = 'Swap'
-                else: disktype = 'Unknown'
-                pt.add_row( [ d.id, d.label, '%s GB' % d.disk_size, d.data_store_id, d.virtual_machine_id, d.file_system, disktype, 'Yes' if d.built else 'No', 'Yes' if d.has_autobackups  else 'No' ])
+                if d.primary: 
+                    disktype = 'Primary'
+                    mounted = 'Yes'
+                elif d.is_swap: 
+                    disktype = 'Swap'
+                    mounted = 'Yes'
+                elif d.mount_point: 
+                    disktype = 'Secondary'
+                    mounted = 'Yes'
+                else: 
+                    disktype = 'Unknown'
+                    disktype = 'No'
+                pt.add_row( [ d.id, d.label, '%s GB' % d.disk_size, d.data_store_id, d.virtual_machine_id, d.file_system, disktype, mounted, 'Yes' if d.built else 'No', 'Yes' if d.has_autobackups  else 'No' ])
 
             print pt
+
+    def disk_usage(self, disk_id):
+        (status, data) = self.get_data('settings/disks/%s/usage.json' % disk_id)
+        if status: 
+            pt = PrettyTable(['User ID', 'VS ID', 'Disk ID', 'Data Read', 'Data Written', 'Reads completed', 'Writes completed', 'Stat Time' ])
+            for d in data:
+                du = DiskUsage(d)
+                pt.add_row( [ du.user_id, du.virtual_machine_id, du.disk_id, du.data_read, du.data_written, du.reads_completed, du.writes_completed, du.stat_time ] )
+
+            print pt
+                

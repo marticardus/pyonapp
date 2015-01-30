@@ -1,12 +1,29 @@
 class OnAppJsonObject(object):
-    def __init__(self, json = None, name = None):
-        if json and name:
-            if name in json:
-                json = json[name]
+    def __init__(self, jsondata = None, name = None):
+        if jsondata and name:
+            if name in jsondata:
+                jsondata = jsondata[name]
 
-            for name, value in json.items():
+            for name, value in jsondata.items():
                 if hasattr(self, name):
                     setattr(self, name, value)
+
+class DiskUsage(OnAppJsonObject):
+    disk_id = None
+    created_at = None
+    updated_at = None
+    data_read = None
+    data_written = None
+    stat_time = None
+    writes_completed = None
+    reads_completed = None
+    user_id = None
+    virtual_machine_id = None
+
+    def __init__(self, jsondata = None, name = 'disk_hourly_stat'):
+        super(DiskUsage, self).__init__(jsondata, name)
+        #if self.data_read: self.data_read = (self.data_read / 1024) / 3600
+        #if self.data_written: self.data_written = (self.data_written / 1024) / 3600
 
 class Disk(OnAppJsonObject):
     primary = None
@@ -35,8 +52,8 @@ class Disk(OnAppJsonObject):
     iqn = None
     identifier = None
 
-    def __init__(self, json = None, name = 'disk'):
-        super(Disk, self).__init__(json, name)
+    def __init__(self, jsondata = None, name = 'disk'):
+        super(Disk, self).__init__(jsondata, name)
 
 class Usage(OnAppJsonObject):
     cpu_usage = None
@@ -49,8 +66,8 @@ class Usage(OnAppJsonObject):
     reads_completed = None
     data_written = None
 
-    def __init__(self, json = None, name = 'vm_stat'):
-        super(Usage, self).__init__(json, name)
+    def __init__(self, jsondata = None, name = 'vm_stat'):
+        super(Usage, self).__init__(jsondata, name)
 
 class Log(OnAppJsonObject):
     status = None
@@ -60,8 +77,8 @@ class Log(OnAppJsonObject):
     target_type = None
     action = None
     id = None
-    def __init__(self, json = None, name = 'log_item'):
-        super(Log, self).__init__(json, name)
+    def __init__(self, jsondata = None, name = 'log_item'):
+        super(Log, self).__init__(jsondata, name)
 
 class DS(OnAppJsonObject):
     data_store_group_id = None
@@ -80,8 +97,8 @@ class DS(OnAppJsonObject):
     id = None
     iscsi_ip = None
 
-    def __init__(self, json = None, name = 'data_store'):
-        super(DS, self).__init__(json, name)
+    def __init__(self, jsondata = None, name = 'data_store'):
+        super(DS, self).__init__(jsondata, name)
 
 class DSZone(OnAppJsonObject):
     default_max_iops = None
@@ -97,8 +114,8 @@ class DSZone(OnAppJsonObject):
     traded = None
     id = None
 
-    def __init__(self, json = None, name = 'data_store_group'):
-        super(DSZone, self).__init__(json, name)
+    def __init__(self, jsondata = None, name = 'data_store_group'):
+        super(DSZone, self).__init__(jsondata, name)
 
 class IPAddr(OnAppJsonObject):
     address = None
@@ -118,8 +135,8 @@ class IPAddr(OnAppJsonObject):
     updated_at = None
     user_id = None
 
-    def __init__(self, json = None, name = 'ip_address'):
-        super(IPAddr, self).__init__(json, name)
+    def __init__(self, jsondata = None, name = 'ip_address'):
+        super(IPAddr, self).__init__(jsondata, name)
 
 class Template(OnAppJsonObject):
     file_name = None
@@ -156,8 +173,8 @@ class Template(OnAppJsonObject):
     allowed_swap = None
     initial_username = None
 
-    def __init__(self, json = None, name = 'image_template'):
-        super(Template, self).__init__(json, name)
+    def __init__(self, jsondata = None, name = 'image_template'):
+        super(Template, self).__init__(jsondata, name)
 
 class VM(OnAppJsonObject):
     preferred_hvs = []
@@ -216,11 +233,11 @@ class VM(OnAppJsonObject):
     template_id = None
     cpu_shares = None
 
-    def __init__(self, json = None, name = 'virtual_machine'):
-        super(VM, self).__init__(json, name)
-        if json:
-            if 'virtual_machine' in json:
-                json = json['virtual_machine']
+    def __init__(self, jsondata = None, name = 'virtual_machine'):
+        super(VM, self).__init__(jsondata, name)
+        if jsondata:
+            if 'virtual_machine' in jsondata:
+                jsondata = jsondata['virtual_machine']
 
-            for ip in json['ip_addresses']:
+            for ip in jsondata['ip_addresses']:
                 ip_obj=IPAddr(ip)
