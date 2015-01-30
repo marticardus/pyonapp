@@ -4,10 +4,7 @@ import os, shutil, pycurl
 from StringIO import StringIO 
 
 # Objects
-from vm import VM
-from template import Template
-from dszone import DSZone
-from ds import DS
+from resources import VM, Template, DSZone, DS
 
 class OnApp(object):
     username = None
