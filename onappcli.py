@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 from ConfigParser import RawConfigParser
 from onappapi import OnApp
 import os, sys, argparse, json

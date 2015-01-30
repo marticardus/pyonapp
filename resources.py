@@ -23,14 +23,16 @@ class DiskUsage(OnAppJsonObject):
     virtual_machine_id = None
 
     vm = None
+    user = None
 
     def __init__(self, jsondata = None, name = 'disk_hourly_stat', api = None):
         super(DiskUsage, self).__init__(jsondata, name, api)
         if self.data_read: self.data_read = u'%.2f' % float((float(self.data_read) / 1024) / 3600)
         if self.data_written: self.data_written = u'%.2f' % float((float(self.data_written) / 1024) / 3600)
 
-        if self.api and self.virtual_machine_id:
-            self.vm = api.vm_info(self.virtual_machine_id)
+        if self.api:
+            if self.virtual_machine_id: self.vm = api.vm_info( self.virtual_machine_id )
+            if self.user_id: self.user = api.user_info( user_id = self.user_id )
 
 
 class Disk(OnAppJsonObject):
@@ -85,8 +87,9 @@ class Usage(OnAppJsonObject):
     def __init__(self, jsondata = None, name = 'vm_stat', api = None):
         super(Usage, self).__init__(jsondata, name, api)
 
-        if self.api and self.virtual_machine_id and self.virtual_machine_id > 0:
-            self.vm = self.api.vm_info(self.virtual_machine_id)
+        if self.api:
+            if self.virtual_machine_id and self.virtual_machine_id > 0: self.vm = self.api.vm_info(self.virtual_machine_id)
+            if self.user_id: self.user = api.user_info( user_id = self.user_id )
 
 class Log(OnAppJsonObject):
     status = None
@@ -266,6 +269,9 @@ class VM(OnAppJsonObject):
         if self.api and self.user_id:
             self.user = self.api.user_info( user_id = self.user_id )
 
+    def __str__(self):
+        return u'%s' % self.label
+
 class Permission(OnAppJsonObject):
     label = None
     created_at = None
@@ -344,3 +350,9 @@ class User(OnAppJsonObject):
                 new_roles.append(Role(r, api = self.api))
 
             self.roles = new_roles
+
+    def __str__(self):
+        return '%s %s' % ( self.first_name, self.last_name )
+
+    def __unicode__(self):
+        return u'%s %s' % ( self.first_name, self.last_name )

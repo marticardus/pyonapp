@@ -225,7 +225,7 @@ class OnApp(object):
             pt.align['BW Received'] = 'r'
             for d in data:
                 u = Usage(d, api = self)
-                pt.add_row([ u.user_id, u.vm.label if u.vm else u.virtual_machine_id, u.cpu_usage, u.reads_completed, u.writes_completed, u.data_read, u.data_written, u.data_sent, u.data_received ])
+                pt.add_row([ u.user if u.user else u.user_id, u.vm if u.vm else u.virtual_machine_id, u.cpu_usage, u.reads_completed, u.writes_completed, u.data_read, u.data_written, u.data_sent, u.data_received ])
             print pt
 
     def disk_list(self, data = None):
@@ -296,7 +296,7 @@ class OnApp(object):
             pt.align['Username'] = 'l'
             for d in data:
                 u = User(d, api = self)
-                pt.add_row([ u.id, '%s %s' % (u.first_name, u.last_name), u.login, u.user_group_id, u.status ])
+                pt.add_row([ u.id, u'%s' % u, u.login, u.user_group_id, u.status ])
             print pt
 
     def user_info(self, user_id):
