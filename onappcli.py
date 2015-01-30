@@ -21,6 +21,7 @@ def usage(resource = None):
             'log' : { 'actions' : [ 'list', 'info [log_id]' ] },
             'system' : { 'actions' : [ 'alerts', 'version' ] },
             'usage' : { 'actions' : [ 'all' ] },
+            'user' : { 'actions' : [ 'list' ] },
             'disk' : { 'actions' : [ 'list', 'list vs [vm_id]', 'usage [disk_id]', 'create [options]', 'delete [options]' ] },
             }
     if resource:
@@ -194,4 +195,8 @@ elif resource == 'disk':
         args = cliparser(list_args)
         api.disk_delete(**args)
     else: usage('disk')
+elif resource == 'user':
+    if action == 'list': api.user_list()
+    elif action == 'info': api.user_info( user_id = get_arg('user') )
+    else: usage('user')
 else: usage()

@@ -22,10 +22,16 @@ class DiskUsage(OnAppJsonObject):
     user_id = None
     virtual_machine_id = None
 
-    def __init__(self, jsondata = None, name = 'disk_hourly_stat'):
-        super(DiskUsage, self).__init__(jsondata, name)
+    vm = None
+
+    def __init__(self, jsondata = None, name = 'disk_hourly_stat', api = None):
+        super(DiskUsage, self).__init__(jsondata, name, api)
         if self.data_read: self.data_read = u'%.2f' % float((float(self.data_read) / 1024) / 3600)
         if self.data_written: self.data_written = u'%.2f' % float((float(self.data_written) / 1024) / 3600)
+
+        if self.api and self.virtual_machine_id:
+            self.vm = api.vm_info(self.virtual_machine_id)
+
 
 class Disk(OnAppJsonObject):
     primary = None
@@ -74,8 +80,13 @@ class Usage(OnAppJsonObject):
     reads_completed = None
     data_written = None
 
-    def __init__(self, jsondata = None, name = 'vm_stat'):
-        super(Usage, self).__init__(jsondata, name)
+    vm = None
+
+    def __init__(self, jsondata = None, name = 'vm_stat', api = None):
+        super(Usage, self).__init__(jsondata, name, api)
+
+        if self.api and self.virtual_machine_id and self.virtual_machine_id > 0:
+            self.vm = self.api.vm_info(self.virtual_machine_id)
 
 class Log(OnAppJsonObject):
     status = None
@@ -85,8 +96,8 @@ class Log(OnAppJsonObject):
     target_type = None
     action = None
     id = None
-    def __init__(self, jsondata = None, name = 'log_item'):
-        super(Log, self).__init__(jsondata, name)
+    def __init__(self, jsondata = None, name = 'log_item', api = None):
+        super(Log, self).__init__(jsondata, name, api)
 
 class DS(OnAppJsonObject):
     data_store_group_id = None
@@ -105,8 +116,8 @@ class DS(OnAppJsonObject):
     id = None
     iscsi_ip = None
 
-    def __init__(self, jsondata = None, name = 'data_store'):
-        super(DS, self).__init__(jsondata, name)
+    def __init__(self, jsondata = None, name = 'data_store', api = None):
+        super(DS, self).__init__(jsondata, name, api)
 
 class DSZone(OnAppJsonObject):
     default_max_iops = None
@@ -122,8 +133,8 @@ class DSZone(OnAppJsonObject):
     traded = None
     id = None
 
-    def __init__(self, jsondata = None, name = 'data_store_group'):
-        super(DSZone, self).__init__(jsondata, name)
+    def __init__(self, jsondata = None, name = 'data_store_group', api = None):
+        super(DSZone, self).__init__(jsondata, name, api)
 
 class IPAddr(OnAppJsonObject):
     address = None
@@ -143,8 +154,8 @@ class IPAddr(OnAppJsonObject):
     updated_at = None
     user_id = None
 
-    def __init__(self, jsondata = None, name = 'ip_address'):
-        super(IPAddr, self).__init__(jsondata, name)
+    def __init__(self, jsondata = None, name = 'ip_address', api = None):
+        super(IPAddr, self).__init__(jsondata, name, api)
 
 class Template(OnAppJsonObject):
     file_name = None
@@ -181,8 +192,8 @@ class Template(OnAppJsonObject):
     allowed_swap = None
     initial_username = None
 
-    def __init__(self, jsondata = None, name = 'image_template'):
-        super(Template, self).__init__(jsondata, name)
+    def __init__(self, jsondata = None, name = 'image_template', api = None):
+        super(Template, self).__init__(jsondata, name, api)
 
 class VM(OnAppJsonObject):
     preferred_hvs = []
@@ -241,11 +252,90 @@ class VM(OnAppJsonObject):
     template_id = None
     cpu_shares = None
 
-    def __init__(self, jsondata = None, name = 'virtual_machine'):
-        super(VM, self).__init__(jsondata, name)
+    def __init__(self, jsondata = None, name = 'virtual_machine', api = None):
+        super(VM, self).__init__(jsondata, name, api)
         if jsondata:
             if 'virtual_machine' in jsondata:
                 jsondata = jsondata['virtual_machine']
 
             for ip in jsondata['ip_addresses']:
                 ip_obj=IPAddr(ip)
+
+class Permission(OnAppJsonObject):
+    label = None
+    created_at = None
+    identifier = None
+    updated_at = None
+    id = None
+
+    def __init__(self, jsondata = None, name = 'permission', api = None):
+        super(Permission, self).__init__(jsondata, name, api)
+
+class Role(OnAppJsonObject):
+    created_at = None
+    updated_at = None
+    label = None
+    identifier = None
+    id = None
+    permissions = []
+    def __init__(self, jsondata = None, name = 'role', api = None):
+        super(Role, self).__init__(jsondata, name, api)
+
+        if self.api and self.permissions:
+            old_permissions = self.permissions
+            new_permissions = []
+            for p in old_permissions:
+                new_permissions.append(Permission(p))
+            self.permissions = new_permissions
+
+
+
+class User(OnAppJsonObject):
+    last_name = None
+    billing_plan_id = None
+    password_changed_at = None
+    updated_at = None
+    time_zone = None
+    used_cpus = None
+    deleted_at = None
+    id = None
+    cdn_status = None
+    additional_fields = None
+    first_name = None
+    used_memory = None
+    used_cpu_shares = None
+    supplied = None
+    locale = None
+    payment_amount = None
+    use_gravatar = None
+    email = None
+    status = None
+    used_disk_size = None
+    activated_at = None
+    outstanding_amount = None
+    disk_space_available = None
+#    infoboxes": {  "hidden_infoboxes": [],  "display_infoboxes": true }, 
+    image_template_group_id = None
+    total_amount = None
+    roles = []
+    created_at = None
+    memory_available = None
+    used_ip_addresses = None
+    firewall_id = None
+    avatar = None
+    suspend_at = None
+    cdn_account_status = None
+    login = None
+    user_group_id = None
+    group_id = None
+
+    def __init__(self, jsondata = None, name = 'user', api = None):
+        super(User, self).__init__(jsondata, name, api)
+
+        if self.roles and self.api:
+            old_roles = self.roles
+            new_roles = []
+            for r in old_roles:
+                new_roles.append(Role(r, api = self.api))
+
+            self.roles = new_roles

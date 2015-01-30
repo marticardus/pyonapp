@@ -4,7 +4,7 @@ import os, shutil, pycurl, sys
 from StringIO import StringIO 
 
 # Objects
-from resources import VM, Template, DSZone, DS, Log, Usage, Disk, DiskUsage
+from resources import VM, Template, DSZone, DS, Log, Usage, Disk, DiskUsage, User, Role, Permission
 
 class OnApp(object):
     username = None
@@ -224,8 +224,8 @@ class OnApp(object):
             pt.align['BW Sent'] = 'r'
             pt.align['BW Received'] = 'r'
             for d in data:
-                u = Usage(d)
-                pt.add_row([ u.user_id, u.virtual_machine_id, u.cpu_usage, u.reads_completed, u.writes_completed, u.data_read, u.data_written, u.data_sent, u.data_received ])
+                u = Usage(d, api = self)
+                pt.add_row([ u.user_id, u.vm.label if u.vm else u.virtual_machine_id, u.cpu_usage, u.reads_completed, u.writes_completed, u.data_read, u.data_written, u.data_sent, u.data_received ])
             print pt
 
     def disk_list(self, data = None):
@@ -288,3 +288,24 @@ class OnApp(object):
         (status, data) = self.exec_url('virtual_machines/%s/disks/%s.json' % (vm_id, disk_id), 'DELETE')
         if status: print 'OK'
 
+    def user_list(self):
+        (status, data) = self.get_data('users.json')
+        if status:
+            pt = PrettyTable([ 'ID', 'Full Name', 'Username', 'User Group', 'Status' ])
+            pt.align['Full Name'] = 'l'
+            pt.align['Username'] = 'l'
+            for d in data:
+                u = User(d, api = self)
+                pt.add_row([ u.id, '%s %s' % (u.first_name, u.last_name), u.login, u.user_group_id, u.status ])
+            print pt
+
+    def user_info(self, user_id):
+        (status, data) = self.get_data('users/%s.json' % user_id)
+        if status:
+            u = User(data, api = self)
+
+            print 'ID: %s, Login: %s' % ( u.id, u.login )
+            for r in u.roles:
+                print '  Role: %s' % r.label
+                for p in r.permissions:
+                    print '   Permission: %s' % p.label
