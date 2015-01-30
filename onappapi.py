@@ -11,11 +11,13 @@ class OnApp(object):
     password = None
     url = None
     tmpdir = '/tmp/onapp'
+    recursive = True
 
-    def __init__(self, username, password, url, tmpdir = '/tmp/onapp'):
+    def __init__(self, username, password, url, tmpdir = '/tmp/onapp', recursive = True):
         self.username = username
         self.password = password
         self.url = url
+        self.recursive = recursive
 
     def clear_cache(self):
         shutil.rmtree(self.tmpdir)
