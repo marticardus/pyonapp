@@ -24,6 +24,7 @@ class DiskUsage(OnAppJsonObject):
 
     vm = None
     user = None
+    disk = None
 
     def __init__(self, jsondata = None, name = 'disk_hourly_stat', api = None):
         super(DiskUsage, self).__init__(jsondata, name, api)
@@ -33,7 +34,11 @@ class DiskUsage(OnAppJsonObject):
         if self.api:
             if self.virtual_machine_id: self.vm = api.vm_info( self.virtual_machine_id )
             if self.user_id: self.user = api.user_info( user_id = self.user_id )
-
+            if self.disk_id:
+                disks = self.api.disk_list_vs( vm_id = self.virtual_machine_id, out = False )
+                for disk in disks:
+                    if disk.id == self.disk_id:
+                        self.disk = disk
 
 class Disk(OnAppJsonObject):
     primary = None
@@ -70,6 +75,9 @@ class Disk(OnAppJsonObject):
         if self.api:
             if self.virtual_machine_id:
                 self.vm = api.vm_info(self.virtual_machine_id)
+
+    def __unicode__(self):
+        return u'%s' % self.label
 
 class Usage(OnAppJsonObject):
     cpu_usage = None

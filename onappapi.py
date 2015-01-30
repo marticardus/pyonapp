@@ -228,41 +228,45 @@ class OnApp(object):
                 pt.add_row([ u.user if u.user else u.user_id, u.vm if u.vm else u.virtual_machine_id, u.cpu_usage, u.reads_completed, u.writes_completed, u.data_read, u.data_written, u.data_sent, u.data_received ])
             print pt
 
-    def disk_list(self, data = None):
+    def disk_list(self, data = None, out = True):
         if not data: (status, data) = self.get_data('settings/disks.json')
         else: (status, data) = data
         if status:
-            pt = PrettyTable([ 'ID', 'Label', 'Size', 'Data Store', 'VS', 'FS', 'Type', 'Mounted', 'Built', 'Auto-Backup' ])
+            disks = []
+            if out: pt = PrettyTable([ 'ID', 'Label', 'Size', 'Data Store', 'VS', 'FS', 'Type', 'Mounted', 'Built', 'Auto-Backup' ])
             for da in data:
                 d = Disk(da, api = self)
-                if d.primary: 
-                    disktype = 'Primary'
-                    mounted = 'Yes'
-                elif d.is_swap: 
-                    disktype = 'Swap'
-                    mounted = 'Yes'
-                elif d.mount_point: 
-                    disktype = 'Secondary'
-                    mounted = 'Yes'
-                else: 
-                    disktype = 'Unknown'
-                    disktype = 'No'
-                pt.add_row( [ d.id, d.label, '%s GB' % d.disk_size, d.data_store_id, d.vm.label if d.vm is not None else d.virtual_machine_id, d.file_system, disktype, mounted, 'Yes' if d.built else 'No', 'Yes' if d.has_autobackups  else 'No' ])
+                disks.append(d)
+                if out:
+                    if d.primary: 
+                        disktype = 'Primary'
+                        mounted = 'Yes'
+                    elif d.is_swap: 
+                        disktype = 'Swap'
+                        mounted = 'Yes'
+                    elif d.mount_point: 
+                        disktype = 'Secondary'
+                        mounted = 'Yes'
+                    else: 
+                        disktype = 'Unknown'
+                        disktype = 'No'
+                    pt.add_row( [ d.id, d.label, '%s GB' % d.disk_size, d.data_store_id, d.vm.label if d.vm is not None else d.virtual_machine_id, d.file_system, disktype, mounted, 'Yes' if d.built else 'No', 'Yes' if d.has_autobackups  else 'No' ])
 
-            print pt
+            if out: print pt
+            return disks
 
     def disk_usage(self, disk_id):
         (status, data) = self.get_data('settings/disks/%s/usage.json' % disk_id)
         if status: 
             pt = PrettyTable(['User ID', 'VS ID', 'Disk ID', 'Data Read', 'Data Written', 'Reads completed', 'Writes completed', 'Stat Time' ])
             for d in data:
-                du = DiskUsage(d)
-                pt.add_row( [ du.user_id, du.virtual_machine_id, du.disk_id, du.data_read, du.data_written, du.reads_completed, du.writes_completed, du.stat_time ] )
+                du = DiskUsage(d, api = self)
+                pt.add_row( [ u'%s' % du.user if du.user else du.user_id, du.vm if du.vm else du.virtual_machine_id, u'%s' % du.disk if du.disk else du.disk_id, du.data_read, du.data_written, du.reads_completed, du.writes_completed, du.stat_time ] )
 
             print pt
                 
-    def disk_list_vs(self, vm_id):
-        self.disk_list(data = self.get_data('virtual_machines/%s/disks.json' % vm_id))
+    def disk_list_vs(self, vm_id, out = True):
+        return self.disk_list(data = self.get_data('virtual_machines/%s/disks.json' % vm_id))
 
     def disk_create(self, vm_id, data_store_id, label, primary, disk_size, is_swap, mount_point, hot_attach, min_iops, add_to_linux_fstab, add_to_freebsd_fstab, require_format_disk, file_system):
         disk = {
