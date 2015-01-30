@@ -1,6 +1,6 @@
 import json, time
 from prettytable import PrettyTable
-import os, shutil, pycurl
+import os, shutil, pycurl, sys
 from StringIO import StringIO 
 
 # Objects
@@ -74,7 +74,9 @@ class OnApp(object):
         if int(output['status']) in [ 200, 201, 204 ]:
             if int(output['status']) == 204: return 'OK'
             return (True, output['body'])
-        elif int(output['status']) in [ 403, 404, 422, 500 ]: return (True, output['body']['errors'])
+        elif int(output['status']) in [ 403, 404, 422, 500 ]: 
+            for d in output['body']['errors']: print d
+            sys.exit(1)
         else: return (False, output['body']['errors'])
 
     def log_list(self):
@@ -258,4 +260,4 @@ class OnApp(object):
             print pt
                 
     def disk_list_vs(self, vm_id):
-        self.disk_list(self.get_data('virtual_machines/%s/disks.json' % vm_id))
+        self.disk_list(data = self.get_data('virtual_machines/%s/disks.json' % vm_id))

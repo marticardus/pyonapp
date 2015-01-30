@@ -22,8 +22,8 @@ class DiskUsage(OnAppJsonObject):
 
     def __init__(self, jsondata = None, name = 'disk_hourly_stat'):
         super(DiskUsage, self).__init__(jsondata, name)
-        #if self.data_read: self.data_read = (self.data_read / 1024) / 3600
-        #if self.data_written: self.data_written = (self.data_written / 1024) / 3600
+        if self.data_read: self.data_read = u'%.2f' % float((float(self.data_read) / 1024) / 3600)
+        if self.data_written: self.data_written = u'%.2f' % float((float(self.data_written) / 1024) / 3600)
 
 class Disk(OnAppJsonObject):
     primary = None

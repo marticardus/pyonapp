@@ -21,7 +21,7 @@ def usage(resource = None):
             'log' : { 'actions' : [ 'list', 'info [log_id]' ] },
             'system' : { 'actions' : [ 'alerts', 'version' ] },
             'usage' : { 'actions' : [ 'all' ] },
-            'disk' : { 'actions' : [ 'list' ] },
+            'disk' : { 'actions' : [ 'list', 'list vs [vm_id]' ] },
             }
     if resource:
         if resource in info:
@@ -157,8 +157,8 @@ elif resource == 'disk':
     if action == 'list': 
         subaction = get_arg('disk', False)
         if not subaction: api.disk_list()
-        elif subaction == 'vs': api.disk_list_vs(get_arg('disk'))
+        elif subaction == 'vs': api.disk_list_vs( vm_id = get_arg('disk'))
         else: usage('disk')
-    elif action == 'usage': api.disk_usage(get_arg('disk'))
+    elif action == 'usage': api.disk_usage( disk_id = get_arg('disk'))
     else: usage('disk')
 else: usage()
