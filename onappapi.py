@@ -118,6 +118,10 @@ class OnApp(object):
         vm = self.vm_info(vm_id)
         os.system('x-www-browser http://%s/virtual_machines/%s' % (self.url, vm.identifier))
 
+    def vm_console(self, vm_id):
+        vm = self.vm_info(vm_id)
+        os.system('x-www-browser https://%s/virtual_machines/%s/console_popup' % (self.url, vm.identifier))
+
     def vm_delete(self, vm_id, convert = 0, destroy = 0):
         if convert not in [ 0, 1]: return False
         if destroy not in [ 0, 1]: return False

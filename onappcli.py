@@ -72,9 +72,8 @@ if resource == 'vm':
     elif action == 'info':
         vm_id = get_arg(resource)
         api.vm_info(vm_id)
-    elif action == 'browser':
-        vm_id = get_arg(resource)
-        api.vm_browser(vm_id)
+    elif action == 'browser': api.vm_browser( vm_id = get_arg(resource) )
+    elif action == 'console': api.vm_console( vm_id = get_arg(resource) )
     elif action == 'start':
         vm_id = get_arg(resource)
         api.vm_start(vm_id)
