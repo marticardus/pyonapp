@@ -35,6 +35,18 @@ def usage(resource = None):
         print 'Available resources: %s' % ', '.join(info.keys())
     sys.exit(0)
 
+def cliparser(prog, args):
+    parser = argparse.ArgumentParser(prog=prog)
+    for arg in args:
+#        required = arg['required'] if 'required' in arg else False
+#        type = arg['type'] if 'type' in arg else str
+#        default = arg['default'] if 'default' in arg else None
+        #parser.add_argument('--%s' % arg['arg'], help=arg['help'], required = required, type = type, default = default)
+        if 'options' in arg: parser.add_argument(arg['args'], **arg['options'])
+        else: parser.add_argument(arg['args'])
+    return vars(parser.parse_args([] if len(sys.argv) == 0 else sys.argv))
+
+
 conf = os.path.join(os.path.expanduser("~"), '.pyonapp.conf')
 config = RawConfigParser()
 
@@ -160,5 +172,30 @@ elif resource == 'disk':
         elif subaction == 'vs': api.disk_list_vs( vm_id = get_arg('disk'))
         else: usage('disk')
     elif action == 'usage': api.disk_usage( disk_id = get_arg('disk'))
+    elif action == 'create':
+        list_args = [
+                { 'args' : '--vs-id',                   'options' : { 'required' : True, 'type' : int,   'dest' : 'vm_id' } },
+                { 'args' : '--data-store-id',           'options' : { 'required' : True, 'type' : int,   'dest' : 'data_store_id' } }, 
+                { 'args' : '--label',                   'options' : { 'required' : True, 'type' : str, } },
+                { 'args' : '--primary',                 'options' : { 'required' : True, 'type' : str,   'default' : 'false', 'choices' : [ 'true', 'false' ] } },
+                { 'args' : '--disk_size',               'options' : { 'required' : True, 'type' : int,   'dest' : 'disk_size' }},
+                { 'args' : '--is-swap',                 'options' : { 'required' : True, 'type' : str,   'dest' : 'is_swap', 'choices' : [ 'true', 'false' ] } },
+                { 'args' : '--mount-point',             'options' : { 'required' : False,'type' : str,   'dest' : 'mount_point' } },
+                { 'args' : '--hot-attach',              'options' : { 'default' : True,  'type' : bool,  'dest' : 'hot_attach'  } },
+                { 'args' : '--min-iops',                'options' : { 'default' : 100,   'type' : int,   'dest' : 'min_iops' } },
+                { 'args' : '--add-to-linux-fstab',      'options' : { 'default' : False, 'type' : bool,  'dest' : 'add_to_linux_fstab' } },
+                { 'args' : '--add-to-freebsd-fstab',    'options' : { 'default' : False, 'type' : bool,  'dest' : 'add_to_freebsd_fstab' } },
+                { 'args' : '--require-format-disk',     'options' : { 'default' : False, 'type' : str,   'dest' : 'require_format_disk', 'choices' : [ 'true', 'false' ] } },
+                { 'args' : '--file-system',             'options' : { 'required' : True, 'type' : str,   'dest' : 'file_system', 'choices' : [ 'ext3', 'ext4' ] } },
+                ]
+        args = cliparser(prog='onappcli disk create', args = list_args)
+        api.disk_create(**args)
+    elif action == 'delete': 
+        list_args = [
+                { 'args' : '--vs-id',   'options' : { 'required' : True, 'type' : int,   'dest' : 'vm_id' } },
+                { 'args' : '--disk-id', 'options' : { 'required' : True, 'type' : int,   'dest' : 'disk_id' } },
+                ]
+        args = cliparser(prog='onappcli disk delete', args = list_args)
+        api.disk_delete(**args)
     else: usage('disk')
 else: usage()

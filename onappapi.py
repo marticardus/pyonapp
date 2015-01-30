@@ -261,3 +261,28 @@ class OnApp(object):
                 
     def disk_list_vs(self, vm_id):
         self.disk_list(data = self.get_data('virtual_machines/%s/disks.json' % vm_id))
+
+    def disk_create(self, vm_id, data_store_id, label, primary, disk_size, is_swap, mount_point, hot_attach, min_iops, add_to_linux_fstab, add_to_freebsd_fstab, require_format_disk, file_system):
+        disk = {
+                'primary' : primary,
+                'disk_size' : disk_size,
+                'file_system' : file_system,
+                'data_store_id' : data_store_id,
+                'label' : label,
+                'require_format_disk' : require_format_disk,
+                'mount_point' : mount_point,
+                'hot_attach' : hot_attach,
+                'min_iops' : min_iops,
+                'add_to_linux_fstab' : add_to_linux_fstab,
+                'add_to_freebsd_fstab' : add_to_freebsd_fstab
+                }
+        data = self.exec_url('virtual_machines/%s/disks.json' % vm_id, 'POST', { 'disk' : disk })
+        (status, data) = self.is_valid_out(data)
+        if status:
+            disk = Disk(data)
+            print vars(disk)
+
+    def disk_delete(self, vm_id, disk_id):
+        (status, data) = self.exec_url('virtual_machines/%s/disks/%s.json' % (vm_id, disk_id), 'DELETE')
+        if status: print 'OK'
+
