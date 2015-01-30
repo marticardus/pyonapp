@@ -1,5 +1,7 @@
 class OnAppJsonObject(object):
-    def __init__(self, jsondata = None, name = None):
+    api = None
+    def __init__(self, jsondata = None, name = None, api = None):
+        self.api = api
         if jsondata and name:
             if name in jsondata:
                 jsondata = jsondata[name]
@@ -52,8 +54,14 @@ class Disk(OnAppJsonObject):
     iqn = None
     identifier = None
 
-    def __init__(self, jsondata = None, name = 'disk'):
-        super(Disk, self).__init__(jsondata, name)
+    vm = None
+
+    def __init__(self, jsondata = None, name = 'disk', api = None):
+        super(Disk, self).__init__(jsondata, name, api)
+
+        if self.api:
+            if self.virtual_machine_id:
+                self.vm = api.vm_info(self.virtual_machine_id)
 
 class Usage(OnAppJsonObject):
     cpu_usage = None

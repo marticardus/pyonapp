@@ -232,7 +232,7 @@ class OnApp(object):
         if status:
             pt = PrettyTable([ 'ID', 'Label', 'Size', 'Data Store', 'VS', 'FS', 'Type', 'Mounted', 'Built', 'Auto-Backup' ])
             for da in data:
-                d = Disk(da)
+                d = Disk(da, api = self)
                 if d.primary: 
                     disktype = 'Primary'
                     mounted = 'Yes'
@@ -245,7 +245,7 @@ class OnApp(object):
                 else: 
                     disktype = 'Unknown'
                     disktype = 'No'
-                pt.add_row( [ d.id, d.label, '%s GB' % d.disk_size, d.data_store_id, d.virtual_machine_id, d.file_system, disktype, mounted, 'Yes' if d.built else 'No', 'Yes' if d.has_autobackups  else 'No' ])
+                pt.add_row( [ d.id, d.label, '%s GB' % d.disk_size, d.data_store_id, d.vm.label if d.vm is not None else d.virtual_machine_id, d.file_system, disktype, mounted, 'Yes' if d.built else 'No', 'Yes' if d.has_autobackups  else 'No' ])
 
             print pt
 
