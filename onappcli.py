@@ -10,31 +10,25 @@ def get_arg(resource = None):
 cmd = os.path.basename(get_arg())
 
 def usage(resource = None):
+    info = {
+            'vm' : { 'actions' : [ 'list', 'info', 'start', 'stop', 'shutdown', 'delete' ], 'example' : [ 'start 45', 'shutdown 45' ] },
+            'template' : { 'actions' : [ 'list', 'listall', 'listsystem', 'listown', 'listinactive', 'listuser', 'listuserid [user_id]' ] },
+            'cache' : { 'actions' : [ 'clear '] },
+            'ds' : { 'actions' : [ 'list' ] },
+            'dszone' : { 'actions' : [ 'list' ] },
+            'log' : { 'actions' : [ 'list', 'info [log_id]' ] },
+            'system' : { 'actions' : [ 'alerts', 'version' ] }
+            }
     if resource:
-        if resource == 'vm':
-            print '%s vm action' % cmd
-            print 'Available actions: list, info, start, stop, shutdown, delete'
-            print 'Example:'
-            print '\t%s shutdown 45' % cmd
-            print '\t%s start 45' % cmd
-        elif resource == 'template':
-            print '%s template action' % cmd
-            print 'Available actions: list, listall, listsystem, listown, listinactive, listuser, listuserd [user_id]'
-        elif resource == 'cache':
-            print '%s cache clear' % cmd
-        elif resource == 'ds':
-            print '%s ds action' % cmd
-            print 'Available actions: list'
-        elif resource == 'dszone':
-            print '%s dszone action' % cmd
-            print 'Available actions: list'
-        elif resource == 'log':
-            print '%s list action' % cmd
-            print 'Available actions: list, info [log_id]'
+        if resource in info:
+            print '%s %s action' % (cmd, resource)
+            print 'Available actions: %s' % ', '.join(info[resource]['actions'])
+            if 'example' in info[resource]:
+                for e in info[resource]['example']:
+                    print '\t%s %s %s' % (cmd, resource, e)
     else:
         print '%s resource action' % cmd
-        print 'Available resources: vm, template, cache'
-
+        print 'Available resources: %s' % ', '.join(info.keys())
     sys.exit(0)
 
 conf = os.path.join(os.path.expanduser("~"), '.pyonapp.conf')
@@ -55,8 +49,7 @@ url = config.get('onapp', 'url')
 api = OnApp(user, password, url)
 
 resource = get_arg()
-if resource not in ['alerts']:
-    if resource: action = get_arg(resource)
+if resource: action = get_arg(resource)
 
 if resource == 'vm':
     if  action == 'list':
@@ -149,6 +142,8 @@ elif resource == 'log':
     if action == 'list': api.log_list()
     elif action == 'info': api.log_info(get_arg('log'))
     else: usage('log')
-elif resource == 'alerts':
-    api.alerts()
+elif resource == 'system':
+    if action == 'alerts': api.alerts()
+    elif action == 'version': api.onapp_version()
+    else: usage('system')
 else: usage()

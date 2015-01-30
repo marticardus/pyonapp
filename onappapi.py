@@ -22,8 +22,7 @@ class OnApp(object):
 
     def get_data(self, url):
         data = self.get_cache(url)
-        if data:
-            return (True, data)
+        if data: return (True, data)
         else:
             data = self.exec_url(url)
             (status, data) = self.is_valid_out(data)
@@ -202,3 +201,7 @@ class OnApp(object):
             print 'zombie_disks: %s ' % data['alerts']['zombie_disks']
             print 'zombie_domains: %s ' % data['alerts']['zombie_domains']
             print 'zombie_transactions: %s ' % data['alerts']['zombie_transactions']
+
+    def onapp_version(self):
+        (status, data) = self.get_data('version.json')
+        if status: print "OnApp Version: %s" % data['version']
