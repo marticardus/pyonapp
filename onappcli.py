@@ -21,7 +21,7 @@ def usage(resource = None):
             'log' : { 'actions' : [ 'list', 'info [log_id]' ] },
             'system' : { 'actions' : [ 'alerts', 'version' ] },
             'usage' : { 'actions' : [ 'all' ] },
-            'disk' : { 'actions' : [ 'list', 'list vs [vm_id]' ] },
+            'disk' : { 'actions' : [ 'list', 'list vs [vm_id]', 'usage [disk_id]', 'create [options]', 'delete [options]' ] },
             }
     if resource:
         if resource in info:
@@ -35,13 +35,9 @@ def usage(resource = None):
         print 'Available resources: %s' % ', '.join(info.keys())
     sys.exit(0)
 
-def cliparser(prog, args):
-    parser = argparse.ArgumentParser(prog=prog)
+def cliparser(args):
+    parser = argparse.ArgumentParser(prog='%s %s %s' % (cmd, resource, action))
     for arg in args:
-#        required = arg['required'] if 'required' in arg else False
-#        type = arg['type'] if 'type' in arg else str
-#        default = arg['default'] if 'default' in arg else None
-        #parser.add_argument('--%s' % arg['arg'], help=arg['help'], required = required, type = type, default = default)
         if 'options' in arg: parser.add_argument(arg['args'], **arg['options'])
         else: parser.add_argument(arg['args'])
     return vars(parser.parse_args([] if len(sys.argv) == 0 else sys.argv))
@@ -188,14 +184,14 @@ elif resource == 'disk':
                 { 'args' : '--require-format-disk',     'options' : { 'default' : False, 'type' : str,   'dest' : 'require_format_disk', 'choices' : [ 'true', 'false' ] } },
                 { 'args' : '--file-system',             'options' : { 'required' : True, 'type' : str,   'dest' : 'file_system', 'choices' : [ 'ext3', 'ext4' ] } },
                 ]
-        args = cliparser(prog='onappcli disk create', args = list_args)
+        args = cliparser(list_args)
         api.disk_create(**args)
     elif action == 'delete': 
         list_args = [
                 { 'args' : '--vs-id',   'options' : { 'required' : True, 'type' : int,   'dest' : 'vm_id' } },
                 { 'args' : '--disk-id', 'options' : { 'required' : True, 'type' : int,   'dest' : 'disk_id' } },
                 ]
-        args = cliparser(prog='onappcli disk delete', args = list_args)
+        args = cliparser(list_args)
         api.disk_delete(**args)
     else: usage('disk')
 else: usage()
