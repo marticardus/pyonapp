@@ -17,7 +17,9 @@ def usage(resource = None):
             'ds' : { 'actions' : [ 'list' ] },
             'dszone' : { 'actions' : [ 'list' ] },
             'log' : { 'actions' : [ 'list', 'info [log_id]' ] },
-            'system' : { 'actions' : [ 'alerts', 'version' ] }
+            'system' : { 'actions' : [ 'alerts', 'version' ] },
+            'usage' : { 'actions' : [ 'all' ] },
+            'disk' : { 'actions' : [ 'list' ] },
             }
     if resource:
         if resource in info:
@@ -146,4 +148,10 @@ elif resource == 'system':
     if action == 'alerts': api.alerts()
     elif action == 'version': api.onapp_version()
     else: usage('system')
+elif resource == 'usage':
+    if action == 'all': api.usage()
+    else: usage('usage')
+elif resource == 'disk':
+    if action == 'list': api.disk_list()
+    else: usage('disk')
 else: usage()

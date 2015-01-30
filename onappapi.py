@@ -4,7 +4,7 @@ import os, shutil, pycurl
 from StringIO import StringIO 
 
 # Objects
-from resources import VM, Template, DSZone, DS, Log
+from resources import VM, Template, DSZone, DS, Log, Usage, Disk
 
 class OnApp(object):
     username = None
@@ -205,3 +205,34 @@ class OnApp(object):
     def onapp_version(self):
         (status, data) = self.get_data('version.json')
         if status: print "OnApp Version: %s" % data['version']
+
+    def usage(self):
+        (status, data) = self.get_data('usage_statistics.json')
+        if status:
+            pt = PrettyTable([ 'User ID', 'VS ID', 'CPU Used', 'Disk reads', 'Disk writes', 'Data read', 'Data written', 'BW Sent', 'BW Received' ])
+            pt.align['User ID'] = 'l'
+            pt.align['VS ID'] = 'l'
+            pt.align['CPU Used'] = 'r'
+            pt.align['Disk reads'] = 'r'
+            pt.align['Disk writes'] = 'r'
+            pt.align['Data read'] = 'r'
+            pt.align['Data written'] = 'r'
+            pt.align['BW Sent'] = 'r'
+            pt.align['BW Received'] = 'r'
+            for d in data:
+                u = Usage(d)
+                pt.add_row([ u.user_id, u.virtual_machine_id, u.cpu_usage, u.reads_completed, u.writes_completed, u.data_read, u.data_written, u.data_sent, u.data_received ])
+            print pt
+
+    def disk_list(self):
+        (status, data) = self.get_data('settings/disks.json')
+        if status:
+            pt = PrettyTable([ 'ID', 'Label', 'Size', 'Data Store', 'VS', 'FS', 'Type', 'Built', 'Auto-Backup' ])
+            for da in data:
+                d = Disk(da)
+                if d.primary: disktype = 'Primary'
+                elif d.is_swap: disktype = 'Swap'
+                else: disktype = 'Unknown'
+                pt.add_row( [ d.id, d.label, '%s GB' % d.disk_size, d.data_store_id, d.virtual_machine_id, d.file_system, disktype, 'Yes' if d.built else 'No', 'Yes' if d.has_autobackups  else 'No' ])
+
+            print pt

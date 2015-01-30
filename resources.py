@@ -8,6 +8,50 @@ class OnAppJsonObject(object):
                 if hasattr(self, name):
                     setattr(self, name, value)
 
+class Disk(OnAppJsonObject):
+    primary = None
+    virtual_machine_id = None
+    has_autobackups = None
+    id = None
+    mount_point = None
+    built = None
+    label = None
+    max_iops = None
+    burst_iops = None
+    is_swap = None
+    add_to_linux_fstab = None
+    disk_vm_number = None
+    burst_bw = None
+    data_store_id = None
+    updated_at = None
+    max_bw = None
+    volume_id = None
+    disk_size = None
+    min_iops = None
+    file_system = None
+    locked = None
+    created_at = None
+    add_to_freebsd_fstab = None
+    iqn = None
+    identifier = None
+
+    def __init__(self, json = None, name = 'disk'):
+        super(Disk, self).__init__(json, name)
+
+class Usage(OnAppJsonObject):
+    cpu_usage = None
+    user_id = None
+    writes_completed = None
+    data_received = None
+    data_sent = None
+    data_read = None
+    virtual_machine_id = None
+    reads_completed = None
+    data_written = None
+
+    def __init__(self, json = None, name = 'vm_stat'):
+        super(Usage, self).__init__(json, name)
+
 class Log(OnAppJsonObject):
     status = None
     created_at = None
