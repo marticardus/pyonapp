@@ -3,9 +3,11 @@ from ConfigParser import RawConfigParser
 from onappapi import OnApp
 import os, sys, argparse, json
 
-def get_arg(resource = None):
+def get_arg(resource = None, exit = True):
     if len(sys.argv) > 0: return sys.argv.pop(0)
-    else: usage(resource)
+    else: 
+        if exit: usage(resource)
+        else: return None
 
 cmd = os.path.basename(get_arg())
 
@@ -152,7 +154,11 @@ elif resource == 'usage':
     if action == 'all': api.usage()
     else: usage('usage')
 elif resource == 'disk':
-    if action == 'list': api.disk_list()
+    if action == 'list': 
+        subaction = get_arg('disk', False)
+        if not subaction: api.disk_list()
+        elif subaction == 'vs': api.disk_list_vs(get_arg('disk'))
+        else: usage('disk')
     elif action == 'usage': api.disk_usage(get_arg('disk'))
     else: usage('disk')
 else: usage()

@@ -224,8 +224,9 @@ class OnApp(object):
                 pt.add_row([ u.user_id, u.virtual_machine_id, u.cpu_usage, u.reads_completed, u.writes_completed, u.data_read, u.data_written, u.data_sent, u.data_received ])
             print pt
 
-    def disk_list(self):
-        (status, data) = self.get_data('settings/disks.json')
+    def disk_list(self, data = None):
+        if not data: (status, data) = self.get_data('settings/disks.json')
+        else: (status, data) = data
         if status:
             pt = PrettyTable([ 'ID', 'Label', 'Size', 'Data Store', 'VS', 'FS', 'Type', 'Mounted', 'Built', 'Auto-Backup' ])
             for da in data:
@@ -256,3 +257,5 @@ class OnApp(object):
 
             print pt
                 
+    def disk_list_vs(self, vm_id):
+        self.disk_list(self.get_data('virtual_machines/%s/disks.json' % vm_id))
