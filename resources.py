@@ -252,6 +252,8 @@ class VM(OnAppJsonObject):
     template_id = None
     cpu_shares = None
 
+    user = None
+
     def __init__(self, jsondata = None, name = 'virtual_machine', api = None):
         super(VM, self).__init__(jsondata, name, api)
         if jsondata:
@@ -260,6 +262,9 @@ class VM(OnAppJsonObject):
 
             for ip in jsondata['ip_addresses']:
                 ip_obj=IPAddr(ip)
+
+        if self.api and self.user_id:
+            self.user = self.api.user_info( user_id = self.user_id )
 
 class Permission(OnAppJsonObject):
     label = None

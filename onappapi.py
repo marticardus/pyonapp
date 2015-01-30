@@ -100,11 +100,11 @@ class OnApp(object):
     def vm_list(self, sortby = 'Hostname'):
         (status, data) = self.get_data('virtual_machines.json')
         if status:
-            pt = PrettyTable(['Hostname', 'VMID', 'Identifier', 'CPU', 'RAM', 'Disk', 'Power'])
+            pt = PrettyTable(['Hostname', 'VMID', 'Identifier', 'User ID', 'CPU', 'RAM', 'Disk', 'Power'])
             pt.align['Hostname'] = 'l'
             for virtual in data:
-                vm = VM(virtual)
-                pt.add_row([vm.hostname, vm.id, vm.identifier, vm.cpus, vm.memory, vm.total_disk_size, 'On' if vm.booted else 'Off' ])
+                vm = VM(virtual, api = self)
+                pt.add_row([vm.hostname, vm.id, vm.identifier, vm.user.login if vm.user else vm.user_id, vm.cpus, vm.memory, vm.total_disk_size, 'On' if vm.booted else 'Off' ])
 
             print pt.get_string(sortby=sortby)
 
@@ -302,10 +302,4 @@ class OnApp(object):
     def user_info(self, user_id):
         (status, data) = self.get_data('users/%s.json' % user_id)
         if status:
-            u = User(data, api = self)
-
-            print 'ID: %s, Login: %s' % ( u.id, u.login )
-            for r in u.roles:
-                print '  Role: %s' % r.label
-                for p in r.permissions:
-                    print '   Permission: %s' % p.label
+            return User(data, api = self)

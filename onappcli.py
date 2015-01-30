@@ -21,7 +21,7 @@ def usage(resource = None):
             'log' : { 'actions' : [ 'list', 'info [log_id]' ] },
             'system' : { 'actions' : [ 'alerts', 'version' ] },
             'usage' : { 'actions' : [ 'all' ] },
-            'user' : { 'actions' : [ 'list' ] },
+            'user' : { 'actions' : [ 'list', 'info [user_id]' ] },
             'disk' : { 'actions' : [ 'list', 'list vs [vm_id]', 'usage [disk_id]', 'create [options]', 'delete [options]' ] },
             }
     if resource:
