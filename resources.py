@@ -8,6 +8,16 @@ class OnAppJsonObject(object):
                 if hasattr(self, name):
                     setattr(self, name, value)
 
+class Log(OnAppJsonObject):
+    status = None
+    created_at = None
+    target_id = None
+    updated_at = None
+    target_type = None
+    action = None
+    id = None
+    def __init__(self, json = None, name = 'log_item'):
+        super(Log, self).__init__(json, name)
 
 class DS(OnAppJsonObject):
     data_store_group_id = None

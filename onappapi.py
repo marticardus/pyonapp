@@ -4,7 +4,7 @@ import os, shutil, pycurl
 from StringIO import StringIO 
 
 # Objects
-from resources import VM, Template, DSZone, DS
+from resources import VM, Template, DSZone, DS, Log
 
 class OnApp(object):
     username = None
@@ -72,9 +72,27 @@ class OnApp(object):
         return { 'status' : status, 'body' : body }
 
     def is_valid_out(self, output):
-        if int(output['status']) in [ 200, 201, 204 ]: return (True, output['body'])
-        elif int(output['status']) in [ 404, 422, 500 ]: return (True, output['body']['errors'])
+        if int(output['status']) in [ 200, 201, 204 ]:
+            if int(output['status']) == 204: return 'OK'
+            return (True, output['body'])
+        elif int(output['status']) in [ 403, 404, 422, 500 ]: return (True, output['body']['errors'])
         else: return (False, output['body']['errors'])
+
+    def log_list(self):
+        (status, data) = self.get_data('logs.json')
+        if status:
+            pt = PrettyTable([ 'ID', 'Action', 'Status', 'Target' ])
+            for d in data:
+                l = Log(d)
+                pt.add_row([ l.id, l.action, l.status, '%s #%s' % (l.target_type, l.target_id) ])
+
+            print pt
+
+    def log_info(self, log_id):
+        (status, data) = self.get_data('logs/%s.json' % log_id)
+        if status:
+            l = Log(data)
+            print vars(l)
 
     def vm_list(self, sortby = 'Hostname'):
         (status, data) = self.get_data('virtual_machines.json')
@@ -177,3 +195,10 @@ class OnApp(object):
 
             print pt
 
+    def alerts(self):
+        (status, data) = self.get_data('alerts.json')
+        if status:
+            print 'zombie_data_stores: %s ' % data['alerts']['zombie_data_stores']
+            print 'zombie_disks: %s ' % data['alerts']['zombie_disks']
+            print 'zombie_domains: %s ' % data['alerts']['zombie_domains']
+            print 'zombie_transactions: %s ' % data['alerts']['zombie_transactions']

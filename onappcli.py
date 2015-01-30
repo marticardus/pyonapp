@@ -28,6 +28,9 @@ def usage(resource = None):
         elif resource == 'dszone':
             print '%s dszone action' % cmd
             print 'Available actions: list'
+        elif resource == 'log':
+            print '%s list action' % cmd
+            print 'Available actions: list, info [log_id]'
     else:
         print '%s resource action' % cmd
         print 'Available resources: vm, template, cache'
@@ -52,7 +55,8 @@ url = config.get('onapp', 'url')
 api = OnApp(user, password, url)
 
 resource = get_arg()
-if resource: action = get_arg(resource)
+if resource not in ['alerts']:
+    if resource: action = get_arg(resource)
 
 if resource == 'vm':
     if  action == 'list':
@@ -141,4 +145,10 @@ elif resource == 'ds':
     if action == 'list':
         api.ds_list()
     else: usage('ds')
+elif resource == 'log':
+    if action == 'list': api.log_list()
+    elif action == 'info': api.log_info(get_arg('log'))
+    else: usage('log')
+elif resource == 'alerts':
+    api.alerts()
 else: usage()
