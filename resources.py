@@ -127,8 +127,13 @@ class DS(OnAppJsonObject):
     id = None
     iscsi_ip = None
 
+    data_store_group = None
+
     def __init__(self, jsondata = None, name = 'data_store', api = None):
         super(DS, self).__init__(jsondata, name, api)
+
+        if self.api:
+            if self.data_store_group_id: self.data_store_group = self.api.dszone_info( data_store_zone_id = self.data_store_group_id )
 
 class DSZone(OnAppJsonObject):
     default_max_iops = None
@@ -146,6 +151,9 @@ class DSZone(OnAppJsonObject):
 
     def __init__(self, jsondata = None, name = 'data_store_group', api = None):
         super(DSZone, self).__init__(jsondata, name, api)
+
+    def __unicode__(self):
+        return u'%s' % self.label
 
 class IPAddr(OnAppJsonObject):
     address = None

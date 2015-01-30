@@ -186,15 +186,20 @@ class OnApp(object):
 
             print pt
 
+    def dszone_info(self, data_store_zone_id):
+        (status, data) = self.get_data('settings/data_store_zones/%s.json' % data_store_zone_id)
+        if status:
+            return DSZone(data)
+
     def ds_list(self):
         (status, data) = self.get_data('settings/data_stores.json')
 
         if status:
-            pt = PrettyTable(['Label', 'ID', 'identifier', 'usage', 'Enabled' ])
+            pt = PrettyTable(['Label', 'ID', 'identifier', 'Zone', 'usage', 'Enabled' ])
             pt.align['Label'] = 'l'
             for ds in data:
-                d = DS(ds)
-                pt.add_row([d.label, d.id, d.identifier, d.usage, d.enabled ])
+                d = DS(ds, api = self)
+                pt.add_row([d.label, d.id, d.identifier, u'%s' % d.data_store_group if d.data_store_group else d.data_store_group_id, d.usage, d.enabled ])
 
             print pt
 
