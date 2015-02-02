@@ -67,25 +67,14 @@ resource = get_arg()
 if resource: action = get_arg(resource)
 
 if resource == 'vm':
-    if  action == 'list':
-        api.vm_list()
-    elif action == 'info':
-        vm_id = get_arg(resource)
-        api.vm_info(vm_id)
+    if  action == 'list':print api.vm_list()
+    elif action == 'info': print api.vm_info( vm_id = get_arg(resource) )
     elif action == 'browser': api.vm_browser( vm_id = get_arg(resource) )
     elif action == 'console': api.vm_console( vm_id = get_arg(resource) )
-    elif action == 'start':
-        vm_id = get_arg(resource)
-        api.vm_start(vm_id)
-    elif action == 'stop':
-        vm_id = get_arg(resource)
-        api.vm_stop(vm_id)
-    elif action == 'shutdown':
-        vm_id = get_arg(resource)
-        api.vm_shutdown(vm_id)
-    elif action == 'delete':
-        vm_id = get_arg(resource)
-        api.vm_delete(vm_id)
+    elif action == 'start': print api.vm_start( vm_id = get_arg(resource))
+    elif action == 'stop': print api.vm_stop( vm_id = get_arg(resource) )
+    elif action == 'shutdown': print api.vm_shutdown( vm_id = get_arg(resource))
+    elif action == 'delete': print api.vm_delete( vm_id = get_arg(resource) )
     elif action == 'create':
         parser = argparse.ArgumentParser(prog='onappcli vm create')
         parser.add_argument('--memory', help='Max Memory', dest='memory', required = True, type = int)
@@ -131,45 +120,40 @@ if resource == 'vm':
     else: usage('vm')
 
 elif resource == 'template':
-    if action == 'list' or action == 'listall': api.template_list('all')
-    elif action == 'listsystem': api.template_list('system')
-    elif action == 'listown': api.template_list('own')
-    elif action == 'listuser': api.template_list('user')
-    elif action == 'listinactive': api.template_list('inactive')
-    elif action == 'listuserid': 
-        user = get_arg('template')
-        api.template_list('user', user)
+    if action == 'list' or action == 'listall': print api.template_list('all')
+    elif action == 'listsystem': print api.template_list('system')
+    elif action == 'listown': print api.template_list('own')
+    elif action == 'listuser': print api.template_list('user')
+    elif action == 'listinactive': print api.template_list('inactive')
+    elif action == 'listuserid': print api.template_list('user', user = get_arg('template'))
     else: usage('template')
 elif resource == 'cache':
-    if action == 'clear':
-        api.clear_cache()
+    if action == 'clear': api.clear_cache()
     else: usage('cache')
 elif resource == 'dszone':
-    if action == 'list':
-        api.dszone_list()
+    if action == 'list': print api.dszone_list()
     else: usage('dszone')
 elif resource == 'ds':
-    if action == 'list':
-        api.ds_list()
+    if action == 'list': print api.ds_list()
     else: usage('ds')
 elif resource == 'log':
-    if action == 'list': api.log_list()
-    elif action == 'info': api.log_info(get_arg('log'))
+    if action == 'list': print api.log_list()
+    elif action == 'info': print api.log_info( log_id = get_arg('log') )
     else: usage('log')
 elif resource == 'system':
     if action == 'alerts': api.alerts()
-    elif action == 'version': api.onapp_version()
+    elif action == 'version': print api.onapp_version()
     else: usage('system')
 elif resource == 'usage':
-    if action == 'all': api.usage()
+    if action == 'all': print api.usage()
     else: usage('usage')
 elif resource == 'disk':
     if action == 'list': 
         subaction = get_arg('disk', False)
-        if not subaction: api.disk_list()
-        elif subaction == 'vs': api.disk_list_vs( vm_id = get_arg('disk'))
+        if not subaction: print api.disk_list()
+        elif subaction == 'vs': print api.disk_list_vs( vm_id = get_arg('disk'))
         else: usage('disk')
-    elif action == 'usage': api.disk_usage( disk_id = get_arg('disk'))
+    elif action == 'usage': print api.disk_usage( disk_id = get_arg('disk'))
     elif action == 'create':
         list_args = [
                 { 'args' : '--vs-id',                   'options' : { 'required' : True, 'type' : int,   'dest' : 'vm_id' } },
@@ -194,10 +178,10 @@ elif resource == 'disk':
                 { 'args' : '--disk-id', 'options' : { 'required' : True, 'type' : int,   'dest' : 'disk_id' } },
                 ]
         args = cliparser(list_args)
-        api.disk_delete(**args)
+        print api.disk_delete(**args)
     else: usage('disk')
 elif resource == 'user':
-    if action == 'list': api.user_list()
-    elif action == 'info': api.user_info( user_id = get_arg('user') )
+    if action == 'list': print api.user_list()
+    elif action == 'info': print api.user_info( user_id = get_arg('user') )
     else: usage('user')
 else: usage()

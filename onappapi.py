@@ -89,7 +89,7 @@ class OnApp(object):
                 l = Log(d)
                 pt.add_row([ l.id, l.action, l.status, '%s #%s' % (l.target_type, l.target_id) ])
 
-            print pt
+            return pt
 
     def log_info(self, log_id):
         (status, data) = self.get_data('logs/%s.json' % log_id)
@@ -106,7 +106,7 @@ class OnApp(object):
                 vm = VM(virtual, api = self)
                 pt.add_row([vm.hostname, vm.id, vm.identifier, vm.user.login if vm.user else vm.user_id, vm.cpus, vm.memory, vm.total_disk_size, 'On' if vm.booted else 'Off' ])
 
-            print pt.get_string(sortby=sortby)
+            return pt.get_string(sortby=sortby)
 
     def vm_info(self, vm_id):
         (status, data) = self.get_data('virtual_machines/%s.json' % vm_id)
@@ -176,7 +176,7 @@ class OnApp(object):
                 t = Template(tdata)
                 pt.add_row([t.label, t.id, t.version, t.operating_system, t.virtualization])
 
-            print pt
+            return pt
 
     def dszone_list(self):
         (status, data) = self.get_data('settings/data_store_zones.json')
@@ -188,7 +188,7 @@ class OnApp(object):
                 z = DSZone(tdata)
                 pt.add_row([z.label, z.id])
 
-            print pt
+            return pt
 
     def dszone_info(self, data_store_zone_id):
         (status, data) = self.get_data('settings/data_store_zones/%s.json' % data_store_zone_id)
@@ -205,7 +205,7 @@ class OnApp(object):
                 d = DS(ds, api = self)
                 pt.add_row([d.label, d.id, d.identifier, u'%s' % d.data_store_group if d.data_store_group else d.data_store_group_id, d.usage, d.enabled ])
 
-            print pt
+            return pt
 
     def alerts(self):
         (status, data) = self.get_data('alerts.json')
@@ -217,7 +217,7 @@ class OnApp(object):
 
     def onapp_version(self):
         (status, data) = self.get_data('version.json')
-        if status: print "OnApp Version: %s" % data['version']
+        if status: return "OnApp Version: %s" % data['version']
 
     def usage(self):
         (status, data) = self.get_data('usage_statistics.json')
@@ -235,34 +235,32 @@ class OnApp(object):
             for d in data:
                 u = Usage(d, api = self)
                 pt.add_row([ u.user if u.user else u.user_id, u.vm if u.vm else u.virtual_machine_id, u.cpu_usage, u.reads_completed, u.writes_completed, u.data_read, u.data_written, u.data_sent, u.data_received ])
-            print pt
+            return pt
 
-    def disk_list(self, data = None, out = True):
+    def disk_list(self, data = None):
         if not data: (status, data) = self.get_data('settings/disks.json')
         else: (status, data) = data
         if status:
             disks = []
-            if out: pt = PrettyTable([ 'ID', 'Label', 'Size', 'Data Store', 'VS', 'FS', 'Type', 'Mounted', 'Built', 'Auto-Backup' ])
+            pt = PrettyTable([ 'ID', 'Label', 'Size', 'Data Store', 'VS', 'FS', 'Type', 'Mounted', 'Built', 'Auto-Backup' ])
             for da in data:
                 d = Disk(da, api = self)
-                disks.append(d)
-                if out:
-                    if d.primary: 
-                        disktype = 'Primary'
-                        mounted = 'Yes'
-                    elif d.is_swap: 
-                        disktype = 'Swap'
-                        mounted = 'Yes'
-                    elif d.mount_point: 
-                        disktype = 'Secondary'
-                        mounted = 'Yes'
-                    else: 
-                        disktype = 'Unknown'
-                        disktype = 'No'
-                    pt.add_row( [ d.id, d.label, '%s GB' % d.disk_size, d.data_store_id, d.vm.label if d.vm is not None else d.virtual_machine_id, d.file_system, disktype, mounted, 'Yes' if d.built else 'No', 'Yes' if d.has_autobackups  else 'No' ])
+                #disks.append(d)
+                if d.primary: 
+                    disktype = 'Primary'
+                    mounted = 'Yes'
+                elif d.is_swap: 
+                    disktype = 'Swap'
+                    mounted = 'Yes'
+                elif d.mount_point: 
+                    disktype = 'Secondary'
+                    mounted = 'Yes'
+                else: 
+                    disktype = 'Unknown'
+                    disktype = 'No'
+                pt.add_row( [ d.id, d.label, '%s GB' % d.disk_size, d.data_store_id, d.vm.label if d.vm is not None else d.virtual_machine_id, d.file_system, disktype, mounted, 'Yes' if d.built else 'No', 'Yes' if d.has_autobackups  else 'No' ])
 
-            if out: print pt
-            return disks
+            return pt
 
     def disk_usage(self, disk_id):
         (status, data) = self.get_data('settings/disks/%s/usage.json' % disk_id)
@@ -272,7 +270,7 @@ class OnApp(object):
                 du = DiskUsage(d, api = self)
                 pt.add_row( [ u'%s' % du.user if du.user else du.user_id, du.vm if du.vm else du.virtual_machine_id, u'%s' % du.disk if du.disk else du.disk_id, du.data_read, du.data_written, du.reads_completed, du.writes_completed, du.stat_time ] )
 
-            print pt
+            return pt
                 
     def disk_list_vs(self, vm_id, out = True):
         return self.disk_list(data = self.get_data('virtual_machines/%s/disks.json' % vm_id))
@@ -310,7 +308,7 @@ class OnApp(object):
             for d in data:
                 u = User(d, api = self)
                 pt.add_row([ u.id, u'%s' % u, u.login, u.user_group_id, u.status ])
-            print pt
+            return pt
 
     def user_info(self, user_id):
         (status, data) = self.get_data('users/%s.json' % user_id)

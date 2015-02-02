@@ -36,9 +36,9 @@ class DiskUsage(OnAppJsonObject):
             if self.user_id: self.user = api.user_info( user_id = self.user_id )
             if self.disk_id:
                 disks = self.api.disk_list_vs( vm_id = self.virtual_machine_id, out = False )
-                for disk in disks:
-                    if disk.id == self.disk_id:
-                        self.disk = disk
+                for disk in disks._rows:
+                    if disk[0] == self.disk_id:
+                        self.disk = disk[1]
 
 class Disk(OnAppJsonObject):
     primary = None
