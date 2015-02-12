@@ -1,10 +1,11 @@
 import json, time
+import inspect
 from prettytable import PrettyTable
 import os, shutil, pycurl, sys
 from StringIO import StringIO 
 
 # Objects
-from resources import VM, Template, DSZone, DS, Log, Usage, Disk, DiskUsage, User, Role, Permission
+from resources import VM, Template, DSZone, DS, Log, Usage, Disk, DiskUsage, User, Role, Permission, BillingPlan
 
 class OnApp(object):
     username = None
@@ -314,3 +315,42 @@ class OnApp(object):
         (status, data) = self.get_data('users/%s.json' % user_id)
         if status:
             return User(data, api = self)
+
+    def billing_plan_list(self):
+        (status, data) = self.get_data('billing_plans.json')
+        if status:
+            pt = PrettyTable(['ID', 'Label', 'Currency', 'Resources' ])
+            pt.align = 'l'
+            for d in data:
+                bp = BillingPlan( jsondata = d, api = self)
+                rs = '\n'.join([value.label for value in bp.base_resources])
+                pt.add_row([ bp.id, bp.label, bp.currency_code, rs ])
+            return pt
+
+    def recurse_pt(self, obj):
+        table = PrettyTable()
+        table.header = False
+        table.align = 'l'
+        length = 0
+        for var in vars(obj):
+            if var != 'api':
+                length = +1
+                value = getattr(obj, var)
+                if type(value) == list:
+                    for child in value:
+                        table.add_row([ var, self.recurse_pt( child ) ])
+                elif '<class' == str(type(value))[:6]:
+                    table.add_row([ var, self.recurse_pt(value) ])
+                else:
+                    table.add_row([ var, value ])
+
+        if length > 0: return table
+        else: return None
+
+
+    def billing_plan_info(self, billing_plan_id):
+        (status, data) = self.get_data('billing_plans/%s.json' % billing_plan_id)
+        if status:
+            bp = BillingPlan( jsondata = data )
+            table = self.recurse_pt( obj = bp )
+            return table

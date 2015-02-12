@@ -184,4 +184,8 @@ elif resource == 'user':
     if action == 'list': print api.user_list()
     elif action == 'info': print api.user_info( user_id = get_arg('user') )
     else: usage('user')
+elif resource == 'billing_plan':
+    if action == 'list': print api.billing_plan_list()
+    elif action == 'info': print api.billing_plan_info( billing_plan_id = get_arg('billing_plan') )
+    else: usage('billing_plan')
 else: usage()

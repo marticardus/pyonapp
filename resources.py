@@ -10,6 +10,114 @@ class OnAppJsonObject(object):
                 if hasattr(self, name):
                     setattr(self, name, value)
 
+class BaseResourcesLimits(OnAppJsonObject):
+    limit_rate_free = None
+    limit_ip_free = None    
+    limit_data_sent_free = None
+    limit_data_received_free = None
+    limit_rate = None
+    limit_ip = None
+    limit_free_cpu = None
+    limit_free_cpu_share = None
+    limit_free_memory = None
+    limit_cpu = None
+    limit_cpu_share = None
+    limit_memory = None
+    limit_default_cpu = None
+    limit_default_cpu_share = None
+    limit_cpu_units = None
+    limit_free_cpu_units = None
+
+
+    def __init__(self, jsondata = None, name = 'limits', api = None):
+        super(BaseResourcesLimits, self).__init__(jsondata, name, api)
+
+class BaseResourcesPrices(OnAppJsonObject):
+    price_off = None
+    price_writes_completed = None
+    price_on = None
+    price_reads_completed = None
+    price_data_written = None
+    price_data_read = None
+    price_rate_on = None
+    price_rate_off = None
+    price_ip_on = None
+    price_ip_off = None
+    price_data_sent = None
+    price_data_received = None
+    price = None
+    price_on_cpu_share = None
+    price_on_cpu = None
+    price_off_cpu = None
+    price_off_cpu_share = None
+    price_on_memory = None
+    price_off_cpu_units = None
+    price_on_cpu_units = None
+    price_off_memory = None
+
+    def __init__(self, jsondata = None, name = 'prices', api = None):
+        super(BaseResourcesPrices, self).__init__(jsondata, name, api)
+
+class BaseResourcesPreferences(OnAppJsonObject):
+    use_default_cpu_share = None
+    use_default_cpu = None
+    use_cpu_units = None
+
+    def __init__(self, jsondata = None, name = 'preferences', api = None):
+        super(BaseResourcesPreferences, self).__init__(jsondata, name, api)
+
+class BaseResource(OnAppJsonObject):
+    resource_name = None
+    is_bucket = None
+    preferences = None
+    limits = None
+    billing_plan_id = None
+    created_at = None
+    target_id = None
+    in_bucket_zone = None
+    limit_type = None
+    updated_at = None
+    is_template = None
+    limits = None
+    prices = None
+    in_template_zone = None
+    label = None
+    id = None
+    unit = None
+
+    def __init__(self, jsondata = None, name = 'base_resource', api = None):
+        super(BaseResource, self).__init__(jsondata, name, api)
+        if self.prices != {}: self.prices = BaseResourcesPrices( jsondata = self.prices )
+        else: self.prices = None
+
+        if self.limits != {}: self.limits = BaseResourcesLimits( jsondata = self.limits )
+        else: self.limits = None
+
+        if self.preferences != {}: self.preferences = BaseResourcesPreferences( jsondata = self.preferences )
+        else: self.preferences = None
+
+class BillingPlan(OnAppJsonObject):
+    allows_kms = None
+    allows_mak = None
+    allows_own = None
+    created_at = None
+    currency_code = None
+    id = None
+    label = None
+    monthly_price = None
+    show_price = None
+    updated_at = None
+    associated_with_users = None
+    base_resources = []
+
+    def __init__(self, jsondata = None, name = 'billing_plan', api = None):
+        super(BillingPlan, self).__init__(jsondata, name, api)
+
+        base_resources = []
+        for resource in self.base_resources:
+            base_resources.append( BaseResource( jsondata = resource ) )
+        self.base_resources = base_resources
+
 class DiskUsage(OnAppJsonObject):
     disk_id = None
     created_at = None
