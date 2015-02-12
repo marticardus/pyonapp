@@ -25,6 +25,7 @@ def usage(resource = None):
             'usage' : { 'actions' : [ 'all' ] },
             'user' : { 'actions' : [ 'list', 'info [user_id]' ] },
             'disk' : { 'actions' : [ 'list', 'list vs [vm_id]', 'usage [disk_id]', 'create [options]', 'delete [options]' ] },
+            'billing_plan' : { 'actions': [ 'list', 'info [bp_id]' ] },
             }
     if resource:
         if resource in info:
