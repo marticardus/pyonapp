@@ -82,15 +82,12 @@ class OnApp(object):
             sys.exit(1)
         else: return (False, output['body']['errors'])
 
-    def log_list(self):
+    def log_list(self, columns = None):
         (status, data) = self.get_data('logs.json')
         if status:
-            pt = PrettyTable([ 'ID', 'Action', 'Status', 'Target' ])
-            for d in data:
-                l = Log(d)
-                pt.add_row([ l.id, l.action, l.status, '%s #%s' % (l.target_type, l.target_id) ])
-
-            return pt
+            if not columns:
+                columns = [ 'id', 'action', 'status', 'target_type', 'target_id' ]
+            return self.generic_return_table(data, Log, columns)
 
     def log_info(self, log_id):
         (status, data) = self.get_data('logs/%s.json' % log_id)
@@ -98,16 +95,12 @@ class OnApp(object):
             l = Log(data)
             print vars(l)
 
-    def vm_list(self, sortby = 'Hostname'):
+    def vm_list(self, sortby = 'Hostname', columns = None):
         (status, data) = self.get_data('virtual_machines.json')
         if status:
-            pt = PrettyTable(['Hostname', 'VMID', 'Identifier', 'User ID', 'CPU', 'RAM', 'Disk', 'Power'])
-            pt.align['Hostname'] = 'l'
-            for virtual in data:
-                vm = VM(virtual, api = self)
-                pt.add_row([vm.hostname, vm.id, vm.identifier, vm.user.login if vm.user else vm.user_id, vm.cpus, vm.memory, vm.total_disk_size, 'On' if vm.booted else 'Off' ])
-
-            return pt.get_string(sortby=sortby)
+            if not columns:
+                columns = ['hostname', 'id', 'identifier', 'user', 'cpus', 'memory', 'total_disk_size', 'booted']
+            return self.generic_return_table(data, VM, columns)
 
     def vm_info(self, vm_id):
         (status, data) = self.get_data('virtual_machines/%s.json' % vm_id)
@@ -161,7 +154,32 @@ class OnApp(object):
             for d in data: print d
         else: return VM(data)
 
-    def template_list(self, types = 'all', user_id = None):
+    def generic_get_columns(self, resource):
+        obj = getattr(sys.modules[__name__], resource)()
+        return obj.get_columns()
+
+    def generic_return_table(self, data, obj, columns):
+        ocol = obj().get_columns()
+        tcol = []
+        for c in columns:
+            if c in ocol:
+                tcol.append({ 'column' : c, 'description' : ocol[c]})
+
+        pt = PrettyTable([c['description'] for c  in tcol])
+        pt.align = 'l'
+        for rd in data:
+            o = obj(rd, api = self )
+            row = []
+            for c in tcol:
+                attr = getattr(o, c['column'])
+                if callable(attr):
+                    row.append(attr())
+                else:
+                    row.append(attr)
+            pt.add_row(row)
+        return pt
+
+    def template_list(self, columns = None, types = 'all', user_id = None):
         if types in [ 'all', 'own', 'user', 'inactive' ]:
             (status, data) = self.get_data('templates/%s.json' % types)
         elif types == 'system':
@@ -170,43 +188,33 @@ class OnApp(object):
             if not user_id: return False
             (status, data) = self.get_data('templates/user/%s.json' % user_id)
 
+        if not columns:
+            columns = [ 'label', 'id', 'version', 'operating_system', 'virtualization' ]
+
         if status:
-            pt = PrettyTable(['Label', 'ID', 'Version', 'OS', 'Virtualitzation'])
-            pt.align['Label'] = 'l'
-            for tdata in data:
-                t = Template(tdata)
-                pt.add_row([t.label, t.id, t.version, t.operating_system, t.virtualization])
+            return self.generic_return_table(data, Template, columns)
 
-            return pt
-
-    def dszone_list(self):
+    def dszone_list(self, columns):
         (status, data) = self.get_data('settings/data_store_zones.json')
 
         if status:
-            pt = PrettyTable(['Label', 'ID'])
-            pt.align['Label'] = 'l'
-            for tdata in data:
-                z = DSZone(tdata)
-                pt.add_row([z.label, z.id])
+            if not columns:
+                columns = [ 'label', 'id' ]
 
-            return pt
+            return self.generic_return_table(data, DSZone, columns)
 
     def dszone_info(self, data_store_zone_id):
         (status, data) = self.get_data('settings/data_store_zones/%s.json' % data_store_zone_id)
         if status:
             return DSZone(data)
 
-    def ds_list(self):
+    def ds_list(self, columns = None):
         (status, data) = self.get_data('settings/data_stores.json')
 
         if status:
-            pt = PrettyTable(['Label', 'ID', 'identifier', 'Zone', 'usage', 'Enabled' ])
-            pt.align['Label'] = 'l'
-            for ds in data:
-                d = DS(ds, api = self)
-                pt.add_row([d.label, d.id, d.identifier, u'%s' % d.data_store_group if d.data_store_group else d.data_store_group_id, d.usage, d.enabled ])
-
-            return pt
+            if not columns:
+                columns = [ 'label', 'id' ]
+            return self.generic_return_table(data, DS, columns)
 
     def alerts(self):
         (status, data) = self.get_data('alerts.json')
@@ -273,7 +281,7 @@ class OnApp(object):
 
             return pt
                 
-    def disk_list_vs(self, vm_id, out = True):
+    def disk_list_vs(self, vm_id, out = True, columns = None):
         return self.disk_list(data = self.get_data('virtual_machines/%s/disks.json' % vm_id))
 
     def disk_create(self, vm_id, data_store_id, label, primary, disk_size, is_swap, mount_point, hot_attach, min_iops, add_to_linux_fstab, add_to_freebsd_fstab, require_format_disk, file_system):
@@ -300,16 +308,12 @@ class OnApp(object):
         (status, data) = self.exec_url('virtual_machines/%s/disks/%s.json' % (vm_id, disk_id), 'DELETE')
         if status: print 'OK'
 
-    def user_list(self):
+    def user_list(self, columns = None):
         (status, data) = self.get_data('users.json')
         if status:
-            pt = PrettyTable([ 'ID', 'Full Name', 'Username', 'User Group', 'Status' ])
-            pt.align['Full Name'] = 'l'
-            pt.align['Username'] = 'l'
-            for d in data:
-                u = User(d, api = self)
-                pt.add_row([ u.id, u'%s' % u, u.login, u.user_group_id, u.status ])
-            return pt
+            if not columns:
+                columns = [ 'id', 'full_name', 'login', 'user_group_id', 'status' ]
+            return self.generic_return_table(data, User, columns)
 
     def user_info(self, user_id):
         (status, data) = self.get_data('users/%s.json' % user_id)

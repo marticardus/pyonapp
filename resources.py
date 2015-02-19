@@ -10,6 +10,13 @@ class OnAppJsonObject(object):
                 if hasattr(self, name):
                     setattr(self, name, value)
 
+    def get_columns(self):
+        columns = {}
+        for c in dir(self):
+            if c not in [ 'api', 'get_columns' ] and c[-12:] != 'verbose_name' and c[:2] != '__':
+                columns[c] = c.title().replace('_',' ')
+        return columns
+
 class BaseResourcesLimits(OnAppJsonObject):
     limit_rate_free = None
     limit_ip_free = None    
@@ -243,6 +250,9 @@ class DS(OnAppJsonObject):
         if self.api:
             if self.data_store_group_id: self.data_store_group = self.api.dszone_info( data_store_zone_id = self.data_store_group_id )
 
+    def __str__(self):
+        return u'%s' % self.label
+
 class DSZone(OnAppJsonObject):
     default_max_iops = None
     min_disk_size = None
@@ -259,6 +269,9 @@ class DSZone(OnAppJsonObject):
 
     def __init__(self, jsondata = None, name = 'data_store_group', api = None):
         super(DSZone, self).__init__(jsondata, name, api)
+
+    def __str__(self):
+        return '%s' % self.label
 
     def __unicode__(self):
         return u'%s' % self.label
@@ -480,3 +493,6 @@ class User(OnAppJsonObject):
 
     def __unicode__(self):
         return u'%s %s' % ( self.first_name, self.last_name )
+
+    def full_name(self):
+        return '%s %s' % ( self.first_name, self.last_name )

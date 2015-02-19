@@ -4,6 +4,7 @@
 from ConfigParser import RawConfigParser
 from onappapi import OnApp
 import os, sys, argparse, json
+from prettytable import PrettyTable
 
 def get_arg(resource = None, exit = True):
     if len(sys.argv) > 0: return sys.argv.pop(0)
@@ -39,6 +40,15 @@ def usage(resource = None):
         print 'Available resources: %s' % ', '.join(info.keys())
     sys.exit(0)
 
+def show_columns(resource, columns):
+    print 'Available columns in %s list' % resource
+    pt = PrettyTable(['Column', 'Description'])
+    pt.align = 'l'
+    for c, d in columns.items():
+        pt.add_row([ c, d ])
+    print pt
+    usage(resource)
+
 def cliparser(args):
     parser = argparse.ArgumentParser(prog='%s %s %s' % (cmd, resource, action))
     for arg in args:
@@ -46,6 +56,15 @@ def cliparser(args):
         else: parser.add_argument(arg['args'])
     return vars(parser.parse_args([] if len(sys.argv) == 0 else sys.argv))
 
+def list_columns(resource, obj):
+    list_args = [
+            { 'args' : '-c',    'options' : { 'required' : False, 'type' : str,  'dest' : 'columns',        'action' : 'append' } },
+            { 'args' : '-C' ,   'options' : { 'required' : False, 'dest' : 'show_columns',   'action' : 'store_true' } },
+            ]
+    args = cliparser(list_args)
+    if args['show_columns']:
+        show_columns(resource, api.generic_get_columns(obj) )
+    return args['columns']
 
 conf = os.path.join(os.path.expanduser("~"), '.pyonapp.conf')
 config = RawConfigParser()
@@ -68,7 +87,7 @@ resource = get_arg()
 if resource: action = get_arg(resource)
 
 if resource == 'vm':
-    if  action == 'list':print api.vm_list()
+    if  action == 'list': print api.vm_list(columns = list_columns(resource, 'VM'))
     elif action == 'info': print api.vm_info( vm_id = get_arg(resource) )
     elif action == 'browser': api.vm_browser( vm_id = get_arg(resource) )
     elif action == 'console': api.vm_console( vm_id = get_arg(resource) )
@@ -121,24 +140,25 @@ if resource == 'vm':
     else: usage('vm')
 
 elif resource == 'template':
-    if action == 'list' or action == 'listall': print api.template_list('all')
-    elif action == 'listsystem': print api.template_list('system')
-    elif action == 'listown': print api.template_list('own')
-    elif action == 'listuser': print api.template_list('user')
-    elif action == 'listinactive': print api.template_list('inactive')
-    elif action == 'listuserid': print api.template_list('user', user = get_arg('template'))
+    columns = list_columns(resource, 'Template')
+    if action == 'list' or action == 'listall': print api.template_list(columns = columns, types = 'all')
+    elif action == 'listsystem': print api.template_list(columns = columns, types = 'system')
+    elif action == 'listown': print api.template_list(columns = columns, types = 'own')
+    elif action == 'listuser': print api.template_list(columns = columns, types = 'user')
+    elif action == 'listinactive': print api.template_list(columns = columns, types = 'inactive')
+    elif action == 'listuserid': print api.template_list(columns = columns, types = 'user', user_id = get_arg('template'))
     else: usage('template')
 elif resource == 'cache':
     if action == 'clear': api.clear_cache()
     else: usage('cache')
 elif resource == 'dszone':
-    if action == 'list': print api.dszone_list()
+    if action == 'list': print api.dszone_list(columns = list_columns(resource, 'DSZone'))
     else: usage('dszone')
 elif resource == 'ds':
-    if action == 'list': print api.ds_list()
+    if action == 'list': print api.ds_list(columns = list_columns(resource, 'DS'))
     else: usage('ds')
 elif resource == 'log':
-    if action == 'list': print api.log_list()
+    if action == 'list': print api.log_list( columns = list_columns(resource, 'Log') )
     elif action == 'info': print api.log_info( log_id = get_arg('log') )
     else: usage('log')
 elif resource == 'system':
@@ -182,7 +202,7 @@ elif resource == 'disk':
         print api.disk_delete(**args)
     else: usage('disk')
 elif resource == 'user':
-    if action == 'list': print api.user_list()
+    if action == 'list': print api.user_list( columns = list_columns(resource, 'User') )
     elif action == 'info': print api.user_info( user_id = get_arg('user') )
     else: usage('user')
 elif resource == 'billing_plan':
