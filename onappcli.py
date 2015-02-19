@@ -64,7 +64,13 @@ def list_columns(resource, obj):
     args = cliparser(list_args)
     if args['show_columns']:
         show_columns(resource, api.generic_get_columns(obj) )
-    return args['columns']
+    if args['columns']:
+        columns = []
+        for c in args['columns']:
+            if ',' in c: columns += c.split(',')
+            else: columns.append(c)
+    else: columns = args['columns']
+    return columns
 
 conf = os.path.join(os.path.expanduser("~"), '.pyonapp.conf')
 config = RawConfigParser()
