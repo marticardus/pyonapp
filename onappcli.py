@@ -16,15 +16,15 @@ cmd = os.path.basename(get_arg())
 
 def usage(resource = None):
     info = {
-            'vm' : { 'actions' : [ 'list', 'info', 'start', 'stop', 'shutdown', 'delete' ], 'example' : [ 'start 45', 'shutdown 45' ] },
-            'template' : { 'actions' : [ 'list', 'listall', 'listsystem', 'listown', 'listinactive', 'listuser', 'listuserid [user_id]' ] },
+            'vm' : { 'actions' : [ 'list [-C|-c col -c coln]', 'info', 'start', 'stop', 'shutdown', 'delete' ], 'example' : [ 'start 45', 'shutdown 45' ] },
+            'template' : { 'actions' : [ 'list [-C|-c col -c coln]', 'listall [-C|-c col -c coln]', 'listsystem [-C|-c col -c coln]', 'listown [-C|-c col -c coln]', 'listinactive [-C|-c col -c coln]', 'listuser [-C|-c col -c coln]', 'listuserid [user_id][-C|-c col -c coln]' ] },
             'cache' : { 'actions' : [ 'clear '] },
-            'ds' : { 'actions' : [ 'list' ] },
-            'dszone' : { 'actions' : [ 'list' ] },
-            'log' : { 'actions' : [ 'list', 'info [log_id]' ] },
+            'ds' : { 'actions' : [ 'list [-C|-c col -c coln]' ] },
+            'dszone' : { 'actions' : [ 'list [-C|-c col -c coln]' ] },
+            'log' : { 'actions' : [ 'list [-C|-c col -c coln]', 'info [log_id]' ] },
             'system' : { 'actions' : [ 'alerts', 'version' ] },
             'usage' : { 'actions' : [ 'all' ] },
-            'user' : { 'actions' : [ 'list', 'info [user_id]' ] },
+            'user' : { 'actions' : [ 'list [-C|-c col -c coln]', 'info [user_id]' ] },
             'disk' : { 'actions' : [ 'list', 'list vs [vm_id]', 'usage [disk_id]', 'create [options]', 'delete [options]' ] },
             'billing_plan' : { 'actions': [ 'list', 'info [bp_id]' ] },
             }
