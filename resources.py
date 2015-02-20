@@ -17,6 +17,37 @@ class OnAppJsonObject(object):
                 columns[c] = c.title().replace('_',' ')
         return columns
 
+class Backup(OnAppJsonObject):
+    allowed_resize_without_reboot = None
+    allowed_hot_migrate = None
+    allowed_swap = None
+    backup_server_id = None
+    backup_size = None
+    backup_type = None
+    built = None
+    built_at = None
+    created_at = None
+    updated_at = None
+    data_store_type = None
+    id = None
+    identifier = None
+    image_type = None
+    initiated = None
+    locked = None
+    marked_for_delete = None
+    min_disk_size = None
+    operating_system_distro = None
+    operating_system = None
+    target_id = None
+    target_type = None
+    template_id = None
+    user_id = None
+    volume_id = None
+    iqn = None
+
+    def __init__(self, jsondata = None, name = 'backup', api = None):
+        super(Backup, self).__init__(jsondata, name, api)
+
 class BaseResourcesLimits(OnAppJsonObject):
     limit_rate_free = None
     limit_ip_free = None    

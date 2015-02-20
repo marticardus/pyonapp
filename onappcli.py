@@ -27,6 +27,7 @@ def usage(resource = None):
             'user' : { 'actions' : [ 'list [-C|-c col -c coln]', 'info [user_id]' ] },
             'disk' : { 'actions' : [ 'list', 'list vs [vm_id]', 'usage [disk_id]', 'create [options]', 'delete [options]' ] },
             'billing_plan' : { 'actions': [ 'list', 'info [bp_id]' ] },
+            'backup' : { 'actions': [ 'list vm_id [-C|-c col -c coln]'], },
             }
     if resource:
         if resource in info:
@@ -215,4 +216,6 @@ elif resource == 'billing_plan':
     if action == 'list': print api.billing_plan_list()
     elif action == 'info': print api.billing_plan_info( billing_plan_id = get_arg('billing_plan') )
     else: usage('billing_plan')
+elif resource == 'backup':
+    if action == 'list': print api.backup_vs_list( vm_id = get_arg('backup'), columns = list_columns(resource, 'Backup') )
 else: usage()
