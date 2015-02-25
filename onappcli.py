@@ -41,6 +41,9 @@ def usage(resource = None):
         print 'Available resources: %s' % ', '.join(info.keys())
     sys.exit(0)
 
+def show_create_params(obj):
+    return cliparser( args = api.generic_get_create_params( resource = obj ) ) 
+
 def show_columns(resource, columns):
     print 'Available columns in %s list' % resource
     pt = PrettyTable(['Column', 'Description'])
@@ -160,6 +163,9 @@ elif resource == 'cache':
     else: usage('cache')
 elif resource == 'dszone':
     if action == 'list': print api.dszone_list(columns = list_columns(resource, 'DSZone'))
+    elif action == 'create': 
+        args = show_create_params('DSZone') 
+        api.dszone_create(**args)
     else: usage('dszone')
 elif resource == 'ds':
     if action == 'list': print api.ds_list(columns = list_columns(resource, 'DS'))

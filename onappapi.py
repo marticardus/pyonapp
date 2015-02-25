@@ -154,6 +154,10 @@ class OnApp(object):
             for d in data: print d
         else: return VM(data)
 
+    def generic_get_create_params(self, resource):
+        obj = getattr(sys.modules[__name__], resource)()
+        return obj.get_create_params()
+
     def generic_get_columns(self, resource):
         obj = getattr(sys.modules[__name__], resource)()
         return obj.get_columns()
@@ -207,6 +211,9 @@ class OnApp(object):
         (status, data) = self.get_data('settings/data_store_zones/%s.json' % data_store_zone_id)
         if status:
             return DSZone(data)
+
+    def dszone_create(self):
+        return 'hola'
 
     def ds_list(self, columns = None):
         (status, data) = self.get_data('settings/data_stores.json')

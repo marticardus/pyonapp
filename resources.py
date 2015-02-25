@@ -1,3 +1,46 @@
+class OnAppAttribute(object):
+    # Attribute Value
+    value = None
+    # Attribute type
+    vartype = str
+    # Required atribute in create cli params
+    cli_create_required = False
+    # Attribute available in create cli params
+    cli_create = False
+    # Required atribute in edit cli params
+    cli_edit_required = False
+    # Attribute available in edit cli params
+    cli_edit = False
+    # Attribute available in list cli
+    cli_list = True
+    # Header of list table
+    list_title = None
+    # Description of attribute
+    description = None
+    # Help on create/edit cli params
+    usage = None
+
+    def __init__(self, value = None, vartype = str, cli_create_required = False, cli_create = False, cli_edit_required = False, cli_edit = False, cli_list = True, list_title = None, description = None, usage = None):
+        self.value = value
+        self.vartype = vartype
+        self.cli_create_required = cli_create_required
+        self.cli_create = cli_create
+        self.cli_edit_required = cli_edit_required
+        self.cli_edit = cli_edit
+        self.cli_list = cli_list
+        self.list_title = list_title
+        self.description = description
+        self.usage = usage
+
+    def set_value(self, value):
+        # TO-DO verify data type
+        self.value = value
+
+    def __str__(self): return '%s' % self.value    
+    def __unicode__(self): return u'%s' % self.value
+    def __repr__(self): return '<Attribute Value: %s>' % self.value
+
+
 class OnAppJsonObject(object):
     api = None
     def __init__(self, jsondata = None, name = None, api = None):
@@ -8,13 +51,51 @@ class OnAppJsonObject(object):
 
             for name, value in jsondata.items():
                 if hasattr(self, name):
-                    setattr(self, name, value)
+                    attr = getattr(self, name)
+                    if type(attr) == OnAppAttribute:
+                        attr.set_value(value)
+                        setattr(self, name, attr)
+                    else:
+                        setattr(self, name, value)
+
+    def valid_attr(self, attr_name):
+        if attr_name not in [ 'get_create_params', 'valid_attr', 'api', 'get_columns' ] and attr_name[:2] != '__': return True
+        return False
+
+    def get_create_params(self):
+        args = []
+        for c in dir(self):
+            if self.valid_attr(c):
+                attr = getattr(self, c)
+                if attr.cli_create:
+                    arg = { 
+                            'args' : '--%s' % c,
+                            'options' : {
+                                'required' : attr.cli_create_required,
+                                'type' : attr.vartype,
+                                'dest' : c,
+                                'metavar' : attr.description,
+                                'help' : attr.usage,
+                            #    'choices' : attr.choices,
+                            #    'default' : attr.default,
+                                }
+                            }
+                    args.append(arg)
+        return args
+
 
     def get_columns(self):
         columns = {}
         for c in dir(self):
-            if c not in [ 'api', 'get_columns' ] and c[-12:] != 'verbose_name' and c[:2] != '__':
-                columns[c] = c.title().replace('_',' ')
+            if self.valid_attr(c):
+                attr = getattr(self, c)
+                if type(attr) == OnAppAttribute:
+                    if attr.list_title:
+                        columns[c] = attr.list_title
+                    else:
+                        columns[c] = c.title().replace('_',' ')
+                else:
+                    columns[c] = c.title().replace('_',' ')
         return columns
 
 class Backup(OnAppJsonObject):
@@ -285,18 +366,18 @@ class DS(OnAppJsonObject):
         return u'%s' % self.label
 
 class DSZone(OnAppJsonObject):
-    default_max_iops = None
-    min_disk_size = None
-    created_at = None
-    updated_at = None
-    default_burst_iops = None
-    label = None
-    federation_enabled = None
-    federation_id = None
-    closed = None
-    location_group_id = None
-    traded = None
-    id = None
+    default_max_iops = OnAppAttribute()
+    min_disk_size = OnAppAttribute()
+    created_at = OnAppAttribute()
+    updated_at = OnAppAttribute()
+    default_burst_iops = OnAppAttribute()
+    label = OnAppAttribute( cli_create = True, cli_create_required = True, cli_edit = True, cli_edit_required = True, description = 'DataStore Zone Label', usage = 'Name of DataStore Zone', list_title = 'DataStore Zone Label')
+    federation_enabled = OnAppAttribute()
+    federation_id = OnAppAttribute()
+    closed = OnAppAttribute()
+    location_group_id = OnAppAttribute( cli_create = True, cli_edit = True, description = 'Location')
+    traded = OnAppAttribute()
+    id = OnAppAttribute()
 
     def __init__(self, jsondata = None, name = 'data_store_group', api = None):
         super(DSZone, self).__init__(jsondata, name, api)
