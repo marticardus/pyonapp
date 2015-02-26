@@ -19,8 +19,12 @@ class OnAppAttribute(object):
     description = None
     # Help on create/edit cli params
     usage = None
+    # List of available choices
+    choices = []
+    # Default vlaue
+    default = None
 
-    def __init__(self, value = None, vartype = str, cli_create_required = False, cli_create = False, cli_edit_required = False, cli_edit = False, cli_list = True, list_title = None, description = None, usage = None):
+    def __init__(self, value = None, vartype = str, cli_create_required = False, cli_create = False, cli_edit_required = False, cli_edit = False, cli_list = True, list_title = None, description = None, usage = None, choices = [], default = None):
         self.value = value
         self.vartype = vartype
         self.cli_create_required = cli_create_required
@@ -31,6 +35,8 @@ class OnAppAttribute(object):
         self.list_title = list_title
         self.description = description
         self.usage = usage
+        self.choices = choices
+        self.default = default
 
     def set_value(self, value):
         # TO-DO verify data type
@@ -59,7 +65,7 @@ class OnAppJsonObject(object):
                         setattr(self, name, value)
 
     def valid_attr(self, attr_name):
-        if attr_name not in [ 'get_create_params', 'valid_attr', 'api', 'get_columns' ] and attr_name[:2] != '__': return True
+        if attr_name not in [ 'get_methods', 'get_create_params', 'valid_attr', 'api', 'get_columns' ] and attr_name[:2] != '__' and attr_name[:4] != 'url_': return True
         return False
 
     def get_create_params(self):
@@ -76,8 +82,8 @@ class OnAppJsonObject(object):
                                 'dest' : c,
                                 'metavar' : attr.description,
                                 'help' : attr.usage,
-                            #    'choices' : attr.choices,
-                            #    'default' : attr.default,
+                                'choices' : attr.choices,
+                                'default' : attr.default,
                                 }
                             }
                     args.append(arg)
@@ -97,6 +103,13 @@ class OnAppJsonObject(object):
                 else:
                     columns[c] = c.title().replace('_',' ')
         return columns
+
+    def get_methods(self):
+        methods = []
+        for c in dir(self):
+            if c not in [ 'get_methods', 'get_columns', 'get_create_params' ] and attr_name[:2] != '__':
+                methods.append(c)
+        return methods
 
 class Backup(OnAppJsonObject):
     allowed_resize_without_reboot = None
@@ -448,63 +461,91 @@ class Template(OnAppJsonObject):
         super(Template, self).__init__(jsondata, name, api)
 
 class VM(OnAppJsonObject):
-    preferred_hvs = []
-    remote_access_password = None
-    recovery_mode = None
-    suspended = None
-    cpu_priority = None
-    updated_at = None
-    ip_addresses = []
-    cpus = None
-    add_to_marketplace = None
-    vip = None
-    initial_root_password_encrypted = None
-    local_remote_access_ip_address = None
-    total_disk_size = None
-    deleted_at = None
-    id = None
-    cpu_sockets = None
-    support_incremental_backups = None
-    template_label = None
-    operating_system_distro = None
-    built = None
-    hostname = None
-    price_per_hour_powered_off = None
-    enable_autoscale = None
-    allow_resize_without_reboot = None
-    label = None
-    note = None
-    state = None
-    local_remote_access_port = None
-    memory = None
-    monthly_bandwidth_used = None
-    price_per_hour = None
-    initial_root_password = None
-    storage_server_type = None
-    admin_note = None
-    hypervisor_id = None
-    enable_monitis = None
-    strict_virtual_machine_id = None
-    cpu_threads = None
-    user_id = None
-    edge_server_type = None
-    min_disk_size = None
-    customer_network_id = None
-    operating_system = None
-    locked = None
-    service_password = None
-    created_at = None
-    firewall_notrack = None
-    allowed_hot_migrate = None
-    allowed_swap = None
-    xen_id = None
-    booted = None
-    cpu_units = None
-    identifier = None
-    template_id = None
-    cpu_shares = None
+    # Object Parameters
+    id = OnAppAttribute()
+    memory = OnAppAttribute()
+    cpus = OnAppAttribute()
+    cpu_shares = OnAppAttribute()
+    cpu_sockets = OnAppAttribute()
+    cpu_threads = OnAppAttribute()
+    hostname = OnAppAttribute()
+    label = OnAppAttribute()
+    preferred_hvs = OnAppAttribute()
+    remote_access_password = OnAppAttribute()
+    recovery_mode = OnAppAttribute()
+    suspended = OnAppAttribute()
+    cpu_priority = OnAppAttribute()
+    updated_at = OnAppAttribute()
+    ip_addresses = OnAppAttribute()
+    add_to_marketplace = OnAppAttribute()
+    vip = OnAppAttribute()
+    initial_root_password_encrypted = OnAppAttribute()
+    local_remote_access_ip_address = OnAppAttribute()
+    total_disk_size = OnAppAttribute()
+    deleted_at = OnAppAttribute()
+    support_incremental_backups = OnAppAttribute()
+    template_label = OnAppAttribute()
+    operating_system_distro = OnAppAttribute()
+    built = OnAppAttribute()
+    price_per_hour_powered_off = OnAppAttribute()
+    allow_resize_without_reboot = OnAppAttribute()
+    note = OnAppAttribute()
+    state = OnAppAttribute()
+    local_remote_access_port = OnAppAttribute()
+    monthly_bandwidth_used = OnAppAttribute()
+    price_per_hour = OnAppAttribute()
+    initial_root_password = OnAppAttribute()
+    storage_server_type = OnAppAttribute()
+    admin_note = OnAppAttribute()
+    enable_monitis = OnAppAttribute()
+    strict_virtual_machine_id = OnAppAttribute()
+    user_id = OnAppAttribute()
+    edge_server_type = OnAppAttribute()
+    min_disk_size = OnAppAttribute()
+    customer_network_id = OnAppAttribute()
+    operating_system = OnAppAttribute()
+    locked = OnAppAttribute()
+    service_password = OnAppAttribute()
+    created_at = OnAppAttribute()
+    firewall_notrack = OnAppAttribute()
+    allowed_hot_migrate = OnAppAttribute()
+    allowed_swap = OnAppAttribute()
+    xen_id = OnAppAttribute()
+    booted = OnAppAttribute()
+    cpu_units = OnAppAttribute()
+    identifier = OnAppAttribute()
+    
+    # Create
+    enable_autoscale = OnAppAttribute( cli_create = True )
+    template_id = OnAppAttribute( cli_create = True )
+    hypervisor_id = OnAppAttribute( cli_create = True )
 
-    user = None
+    # Create parameters
+    data_store_group_primary_id = OnAppAttribute( cli_list = False, cli_create = True )
+    primary_disk_size = OnAppAttribute( cli_list = False, cli_create = True )
+    primary_disk_min_iops = OnAppAttribute( cli_list = False, cli_create = True )
+    data_store_group_swap_id = OnAppAttribute( cli_list = False, cli_create = True )
+    swap_disk_size = OnAppAttribute( cli_list = False, cli_create = True )
+    swap_disk_min_iops = OnAppAttribute( cli_list = False, cli_create = True )
+    primary_network_group_id = OnAppAttribute( cli_list = False, cli_create = True )
+    primary_network_id = OnAppAttribute( cli_list = False, cli_create = True )
+    selected_ip_address_id = OnAppAttribute( cli_list = False, cli_create = True )
+    required_virtual_machine_build = OnAppAttribute( cli_list = False, cli_create = True )
+    required_virtual_machine_startup = OnAppAttribute( cli_list = False, cli_create = True )
+    required_ip_address_assignment = OnAppAttribute( cli_list = False, cli_create = True )
+    required_automatic_backup = OnAppAttribute( cli_list = False, cli_create = True )
+    type_of_format = OnAppAttribute( cli_list = False, cli_create = True )
+    recipe_ids = OnAppAttribute( cli_list = False, cli_create = True )
+    custom_recipe_variables = OnAppAttribute( cli_list = False, cli_create = True )
+    initial_root_password = OnAppAttribute( cli_list = False, cli_create = True )
+    rate_limit = OnAppAttribute( cli_list = False, cli_create = True )
+    hypervisor_group_id = OnAppAttribute( cli_list = False, cli_create = True )
+    licensing_server_id = OnAppAttribute( cli_list = False, cli_create = True )
+    licensing_type = OnAppAttribute( cli_list = False, cli_create = True )
+    licensing_key = OnAppAttribute( cli_list = False, cli_create = True )
+
+    # Optional resources
+    user = OnAppAttribute()
 
     def __init__(self, jsondata = None, name = 'virtual_machine', api = None):
         super(VM, self).__init__(jsondata, name, api)
