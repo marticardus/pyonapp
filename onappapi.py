@@ -180,7 +180,12 @@ class OnApp(object):
                     row.append(attr())
                 else:
                     if hasattr(attr, 'get_value'): row.append(attr.get_value())
-                    else: row.append(attr)
+                    else: 
+                        if type(attr) == list:
+                            row.append(', '.join([a.__str__() for a in attr]))
+                        else:
+                            row.append(attr)
+
             pt.add_row(row)
         return pt
 

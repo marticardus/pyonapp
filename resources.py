@@ -424,6 +424,11 @@ class IPAddr(OnAppJsonObject):
     def __init__(self, jsondata = None, name = 'ip_address', api = None):
         super(IPAddr, self).__init__(jsondata, name, api)
 
+
+    def __str__(self): return '%s' % self.address
+    def __unicode__(self): return u'%s' % self.address
+
+
 class Template(OnAppJsonObject):
     file_name = None
     cdn = None
@@ -465,7 +470,7 @@ class Template(OnAppJsonObject):
 class VM(OnAppJsonObject):
     # Object Parameters
     id = OnAppAttribute()
-    memory = OnAppAttribute()
+    memory = OnAppAttribute( list_title = 'Memory (MB)')
     cpus = OnAppAttribute()
     cpu_shares = OnAppAttribute()
     cpu_sockets = OnAppAttribute()
@@ -483,7 +488,7 @@ class VM(OnAppJsonObject):
     vip = OnAppAttribute()
     initial_root_password_encrypted = OnAppAttribute()
     local_remote_access_ip_address = OnAppAttribute()
-    total_disk_size = OnAppAttribute()
+    total_disk_size = OnAppAttribute( list_title = 'Total Disk (GB)' )
     deleted_at = OnAppAttribute()
     support_incremental_backups = OnAppAttribute()
     template_label = OnAppAttribute()
@@ -555,8 +560,10 @@ class VM(OnAppJsonObject):
             if 'virtual_machine' in jsondata:
                 jsondata = jsondata['virtual_machine']
 
+            ip_obj = []
             for ip in jsondata['ip_addresses']:
-                ip_obj=IPAddr(ip)
+                ip_obj.append(IPAddr(ip))
+            self.ip_addresses = ip_obj
 
         if self.api and self.user_id:
             self.user = self.api.user_info( user_id = self.user_id )
