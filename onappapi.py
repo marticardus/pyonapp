@@ -179,7 +179,8 @@ class OnApp(object):
                 if callable(attr):
                     row.append(attr())
                 else:
-                    row.append(attr)
+                    if hasattr(attr, 'get_value'): row.append(attr.get_value())
+                    else: row.append(attr)
             pt.add_row(row)
         return pt
 

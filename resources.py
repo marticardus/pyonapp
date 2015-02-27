@@ -42,6 +42,8 @@ class OnAppAttribute(object):
         # TO-DO verify data type
         self.value = value
 
+    def get_value(self): return self.value
+
     def __str__(self): return '%s' % self.value    
     def __unicode__(self): return u'%s' % self.value
     def __repr__(self): return '<Attribute Value: %s>' % self.value
