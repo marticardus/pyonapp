@@ -5,7 +5,7 @@ import os, shutil, pycurl, sys
 from StringIO import StringIO 
 
 # Objects
-from resources import VM, Template, DSZone, DS, Log, Usage, Disk, DiskUsage, User, Role, Permission, BillingPlan, Backup
+from resources import VM, Template, DSZone, DS, NetworkZone, Log, Usage, Disk, DiskUsage, User, Role, Permission, BillingPlan, Backup
 
 class OnApp(object):
     username = None
@@ -228,6 +228,13 @@ class OnApp(object):
             if not columns:
                 columns = [ 'label', 'id' ]
             return self.generic_return_table(data, DS, columns)
+
+    def netzone_list(self, columns):
+        (status, data) = self.get_data('settings/network_zones.json')
+        if status:
+            if not columns:
+                columns = [ 'label', 'id' ]
+            return self.generic_return_table(data, NetworkZone, columns)
 
     def alerts(self):
         (status, data) = self.get_data('alerts.json')

@@ -403,6 +403,30 @@ class DSZone(OnAppJsonObject):
     def __unicode__(self):
         return u'%s' % self.label
 
+
+class NetworkZone(OnAppJsonObject):
+    created_at = None
+    label = None
+    closed = None
+    location_group_id = None
+    updated_at = None
+    federation_enabled = None
+    federation_id = None
+    location_group_id =None 
+    traded = None
+    id = None
+
+    def __init__(self, jsondata = None, name = 'network_group', api = None):
+        print jsondata
+        super(NetworkZone, self).__init__(jsondata, name, api)
+
+    def __str__(self):
+        return '%s' % self.label
+
+    def __unicode__(self):
+        return u'%s' % self.label
+
+
 class IPAddr(OnAppJsonObject):
     address = None
     broadcast = None
