@@ -22,6 +22,7 @@ def usage(resource = None):
             'ds' : { 'actions' : [ 'list [-C|-c col -c coln]' ] },
             'dszone' : { 'actions' : [ 'list [-C|-c col -c coln]' ] },
             'log' : { 'actions' : [ 'list [-C|-c col -c coln]', 'info [log_id]' ] },
+            'netzone' : { 'actions' : [ 'list [-C|-c col -c coln]' ] },
             'system' : { 'actions' : [ 'alerts', 'version' ] },
             'usage' : { 'actions' : [ 'all' ] },
             'user' : { 'actions' : [ 'list [-C|-c col -c coln]', 'info [user_id]' ] },
@@ -171,6 +172,9 @@ elif resource == 'dszone':
 elif resource == 'ds':
     if action == 'list': print api.ds_list(columns = list_columns(resource, 'DS'))
     else: usage('ds')
+elif resource == 'netzone':
+    if action == 'list': print api.netzone_list(columns = list_columns(resource, 'NetworkZone'))
+    else: usage('netzone')
 elif resource == 'log':
     if action == 'list': print api.log_list( columns = list_columns(resource, 'Log') )
     elif action == 'info': print api.log_info( log_id = get_arg('log') )
