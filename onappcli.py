@@ -42,6 +42,9 @@ def usage(resource = None):
         print 'Available resources: %s' % ', '.join(info.keys())
     sys.exit(0)
 
+def show_create_params(obj):
+    return cliparser( args = api.generic_get_create_params( resource = obj ) ) 
+
 def show_columns(resource, columns):
     print 'Available columns in %s list' % resource
     pt = PrettyTable(['Column', 'Description'])
@@ -104,46 +107,47 @@ if resource == 'vm':
     elif action == 'shutdown': print api.vm_shutdown( vm_id = get_arg(resource))
     elif action == 'delete': print api.vm_delete( vm_id = get_arg(resource) )
     elif action == 'create':
-        parser = argparse.ArgumentParser(prog='onappcli vm create')
-        parser.add_argument('--memory', help='Max Memory', dest='memory', required = True, type = int)
-        parser.add_argument('--cpus', help='Max CPU', dest='cpus', required = True, type = int)
-        parser.add_argument('--cpu_shares', help='CPU Shares', dest='cpu_shares', default = 100, type = int)
-        parser.add_argument('--cpu-sockets', help='CPU Sockets', dest='cpu_sockets', default = 1, type = int)
-        parser.add_argument('--cpu-threads', help='CPU Threads', dest='cpu_threads', default = 1, type = int)
-        parser.add_argument('--hostname', help='Set hostname', dest='hostname', required = True, type = str)
-        parser.add_argument('--label', help='Set label', dest='label', required = True, type = str)
-        parser.add_argument('--data-store-group-primary-id', help='Primary Datastore ID', required = True, type = int)
-        parser.add_argument('--primary-disk-size', help='Set primary disk size', dest='primary_disk_size', default = 5, type = int)
-        parser.add_argument('--primary-disk-min-iops', help='Primary disk IOPS', dest='primary_disk_min_iops', default = 100, type = int)
-        parser.add_argument('--data-store-group-swap-id', help='Swap Datastore ID', default = 1, type = int)
-        parser.add_argument('--swap-disk-size', help='Set swap disk size', dest='swap_disk_size', default = 0, type = int)
-        parser.add_argument('--swap-disk-min-iops', help='Swap disk IOPS', dest='swap_disk_min_iops', default = 100, type = int)
-        parser.add_argument('--primary-network-group-id', help='Network zone', dest='primary_network_group_id', required = True, type = int)
-        parser.add_argument('--primary-network-id', help='Set primary network id', dest='primary_network_id', required = True, type = int)
-        parser.add_argument('--selected-ip-address-id', help='Primary IP address ID', dest='selected_ip_address_id', default = 0, type = int)
-        parser.add_argument('--required-virtual-machine-build', help='Build virtual machine', dest='required_virtual_machine_build', default=1, type = int)
-        parser.add_argument('--required-virtual-machine-startup', help='Start after create', dest='required_virtual_machine_startup', default = 1, type = int)
-        parser.add_argument('--required-ip-address-assignment', help='Auto assing IP', dest='required_ip_address_assignment', default = 1, type = int)
-        parser.add_argument('--required-automatic-backup', help='Auto backups', dest='required_automatic_backup', default = 0, type = int)
-        parser.add_argument('--type-of-format', help='Type of disk format', dest='type_of_format', default = 'ext4', type = str)
-        parser.add_argument('--enable-autoscale', help='Enable autoscale', dest='enable_autoscale', default = 0, type = int)
-        parser.add_argument('--recipe-ids', help='Recipe IDs', dest='recipe_ids', default = [], type = list)
-        parser.add_argument('--custom-recipe-variables', help='Custom recipe variables', default = [], type = list)
-        parser.add_argument('--template-id', help='Template ID', dest='template_id', required = True, type = int)
-        parser.add_argument('--initial-root-password', help='Root password', dest='initial_root_password', required = False, type = str)
-        parser.add_argument('--rate-limit', help='Rate limit', dest='rate_limit', default = 'none', type = str)
-        parser.add_argument('--hypervisor-group-id', help='Hypervisor group id', dest='hypervisor_group_id', type = int)
-        parser.add_argument('--hypervisor-id', help='Hypervisor', dest='hypervisor_id', required = True, type = int)
-        parser.add_argument('--licensing-server-id', help='Licensing server', dest='licensing_server_id', default = 0, type = int)
-        parser.add_argument('--licensing-type', help='License type', dest='licensing_type', default = 'kms', type = str)
-        parser.add_argument('--licensing-key', help='License Key', dest='licensing_key', default = '', type = str)
+        #parser = argparse.ArgumentParser(prog='onappcli vm create')
+        #parser.add_argument('--memory', help='Max Memory', dest='memory', required = True, type = int)
+        #parser.add_argument('--cpus', help='Max CPU', dest='cpus', required = True, type = int)
+        #parser.add_argument('--cpu_shares', help='CPU Shares', dest='cpu_shares', default = 100, type = int)
+        #parser.add_argument('--cpu-sockets', help='CPU Sockets', dest='cpu_sockets', default = 1, type = int)
+        #parser.add_argument('--cpu-threads', help='CPU Threads', dest='cpu_threads', default = 1, type = int)
+        #parser.add_argument('--hostname', help='Set hostname', dest='hostname', required = True, type = str)
+        #parser.add_argument('--label', help='Set label', dest='label', required = True, type = str)
+        #parser.add_argument('--data-store-group-primary-id', help='Primary Datastore ID', required = True, type = int)
+        #parser.add_argument('--primary-disk-size', help='Set primary disk size', dest='primary_disk_size', default = 5, type = int)
+        #parser.add_argument('--primary-disk-min-iops', help='Primary disk IOPS', dest='primary_disk_min_iops', default = 100, type = int)
+        #parser.add_argument('--data-store-group-swap-id', help='Swap Datastore ID', default = 1, type = int)
+        #parser.add_argument('--swap-disk-size', help='Set swap disk size', dest='swap_disk_size', default = 0, type = int)
+        #parser.add_argument('--swap-disk-min-iops', help='Swap disk IOPS', dest='swap_disk_min_iops', default = 100, type = int)
+        #parser.add_argument('--primary-network-group-id', help='Network zone', dest='primary_network_group_id', required = True, type = int)
+        #parser.add_argument('--primary-network-id', help='Set primary network id', dest='primary_network_id', required = True, type = int)
+        #parser.add_argument('--selected-ip-address-id', help='Primary IP address ID', dest='selected_ip_address_id', default = 0, type = int)
+        #parser.add_argument('--required-virtual-machine-build', help='Build virtual machine', dest='required_virtual_machine_build', default=1, type = int)
+        #parser.add_argument('--required-virtual-machine-startup', help='Start after create', dest='required_virtual_machine_startup', default = 1, type = int)
+        #parser.add_argument('--required-ip-address-assignment', help='Auto assing IP', dest='required_ip_address_assignment', default = 1, type = int)
+        #parser.add_argument('--required-automatic-backup', help='Auto backups', dest='required_automatic_backup', default = 0, type = int)
+        #parser.add_argument('--type-of-format', help='Type of disk format', dest='type_of_format', default = 'ext4', type = str)
+        #parser.add_argument('--enable-autoscale', help='Enable autoscale', dest='enable_autoscale', default = 0, type = int)
+        #parser.add_argument('--recipe-ids', help='Recipe IDs', dest='recipe_ids', default = [], type = list)
+        #parser.add_argument('--custom-recipe-variables', help='Custom recipe variables', default = [], type = list)
+        #parser.add_argument('--template-id', help='Template ID', dest='template_id', required = True, type = int)
+        #parser.add_argument('--initial-root-password', help='Root password', dest='initial_root_password', required = False, type = str)
+        #parser.add_argument('--rate-limit', help='Rate limit', dest='rate_limit', default = 'none', type = str)
+        #parser.add_argument('--hypervisor-group-id', help='Hypervisor group id', dest='hypervisor_group_id', type = int)
+        #parser.add_argument('--hypervisor-id', help='Hypervisor', dest='hypervisor_id', required = True, type = int)
+        #parser.add_argument('--licensing-server-id', help='Licensing server', dest='licensing_server_id', default = 0, type = int)
+        #parser.add_argument('--licensing-type', help='License type', dest='licensing_type', default = 'kms', type = str)
+        #parser.add_argument('--licensing-key', help='License Key', dest='licensing_key', default = '', type = str)
 
-        args = vars(parser.parse_args([] if len(sys.argv) == 0 else sys.argv))
-        vm = api.vm_create(**args)
-        if vm and vm.__class__.__name__ == 'VM':
-            print vm.id
-            print vm.label
-            print vm.hostname
+        args = show_create_params('VM')
+        #args = vars(parser.parse_args([] if len(sys.argv) == 0 else sys.argv))
+        #vm = api.vm_create(**args)
+        #if vm and vm.__class__.__name__ == 'VM':
+        #    print vm.id
+        #    print vm.label
+        #    print vm.hostname
 
     else: usage('vm')
 
@@ -161,6 +165,9 @@ elif resource == 'cache':
     else: usage('cache')
 elif resource == 'dszone':
     if action == 'list': print api.dszone_list(columns = list_columns(resource, 'DSZone'))
+    elif action == 'create': 
+        args = show_create_params('DSZone') 
+        api.dszone_create(**args)
     else: usage('dszone')
 elif resource == 'ds':
     if action == 'list': print api.ds_list(columns = list_columns(resource, 'DS'))
