@@ -379,6 +379,31 @@ class OnApp(object):
             table = self.recurse_pt( obj = bp )
             return table
 
+    def billing_plan_csv(self, billing_plan_id):
+        (status, data) = self.get_data('billing_plans/%s.json' % billing_plan_id)
+        if status:
+            print "label,item,hourly,monthly,unit"
+            bp = BillingPlan( jsondata = data )
+            labels=['Backup Server Zone 1'
+                    'Master Template Zone',
+                    'SSD DataStore Zone',
+                    'Default Hypervisor Zone',
+                    'Master Bucket Zone',
+                    'Master Template Zone',
+                    'Default Network Zone',
+                    ]
+            for resource in bp.base_resources:
+                if resource.prices == None: continue
+                if resource.label.startswith('VLAN'): continue
+                #print resource.label
+                if resource.label in labels:
+                    for attr, value in resource.prices.__dict__.iteritems():
+                        if attr == 'api': continue
+                        print "'%s','%s','%.8f','%.8f','%s'" % (resource.label,attr,value,value*720,resource.unit,)
+                else:
+                    if resource.prices.price == None: resource.prices.price = 0.00000000
+                    print "'%s','%s','%.8f','%.8f','%s'" % (resource.label,resource.resource_name,resource.prices.price,resource.prices.price*720.00,resource.unit)
+
     def backup_vs_list(self, vm_id, columns = None):
         (status, data) = self.get_data('virtual_machines/%s/backups.json' % vm_id)
         if status:

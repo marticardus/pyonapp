@@ -188,6 +188,11 @@ class BaseResourcesPrices(OnAppJsonObject):
     price_off_cpu_units = None
     price_on_cpu_units = None
     price_off_memory = None
+    price_backup = None
+    price_backup_disk_size = None
+    price_template = None
+    price_template_disk_size = None
+
 
     def __init__(self, jsondata = None, name = 'prices', api = None):
         super(BaseResourcesPrices, self).__init__(jsondata, name, api)
@@ -402,7 +407,6 @@ class DSZone(OnAppJsonObject):
 
     def __unicode__(self):
         return u'%s' % self.label
-
 
 class NetworkZone(OnAppJsonObject):
     created_at = None
